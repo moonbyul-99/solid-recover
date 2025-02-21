@@ -1,0 +1,21 @@
+# paired config template
+
+rna_config_path: /home/rsun@ZHANGroup.local/sr_project/configs/rna_configs/config_3.yaml
+ga_config_path: /home/rsun@ZHANGroup.local/sr_project/configs/ga_configs/config_3.yaml
+rna_checkpoint: /home/rsun@ZHANGroup.local/sr_project/saved_models/config_3_2025-02-19-05-16/checkpoint_16000.pth
+ga_checkpoint: /home/rsun@ZHANGroup.local/sr_project/saved_models/ga_config3_2025-02-20-07-15/checkpoint_12000.pth
+temperature: 0.1
+tau: 0.5
+freeze_param: True
+learning_rate: 1.0e-5 
+weight_decay: 0.05
+warmup_steps: 1000
+anneal_steps: 10000
+min_lr: 1.0e-6
+log_dir: logs
+save_dir: saved_models
+run_name: paired_test
+num_steps: 20000
+device: 'cuda' 
+eval_steps: 100
+save_steps: 5000

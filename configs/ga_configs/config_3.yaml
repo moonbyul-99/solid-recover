@@ -1,0 +1,48 @@
+# config.yaml
+# get the ae + ce base model
+
+omic: 
+  model_type: "ga" #"ga" or "multiomic"
+
+network:
+  feature_num: 31899
+  hidden_dims:
+    - 512
+    - 256
+    - 128
+  dropout: 0.1
+  layernorm_eps: 1.0e-8
+  input_dropout: 0.4
+  activation: 'leaky_relu'
+  vae_weight: 0  # float, vae loss weights, if vae_based is False, this parameter has no effect
+  ce_weights: # list of float, ce loss weights, if null, no ce_loss
+    NeuronTransmitter: 20
+    L1: 15
+    Subclass: 5
+    L3: 2.5
+  class_dict: # dict, class num for each class, if null, no ce_loss
+    NeuronTransmitter: 8
+    L1: 37
+    Subclass: 275
+    L3: 899
+
+# training parameters
+training:
+  device: 'cuda'
+  training_steps: 12000
+  eval_steps: 100 
+  save_steps: 6000
+  log_dir: "logs"
+  save_dir: "saved_models"
+  run_name: 'ga_config3'
+
+# optimizer parameters 
+optimizer:
+  learning_rate: 1.0e-4
+  weight_decay: 0.1
+  warmup_steps: 1200
+  anneal_steps: 10000
+  min_lr: 1.0e-7
+
+
+

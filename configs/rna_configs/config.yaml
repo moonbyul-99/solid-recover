@@ -1,0 +1,46 @@
+# config.yaml
+
+omic: 
+  model_type: "rna" #"ga" or "multiomic"
+
+network:
+  feature_num: 32285
+  hidden_dims:
+    - 512
+    - 256
+    - 128
+  dropout: 0.1
+  layernorm_eps: 1.0e-8
+  input_dropout: 0.4
+  activation: 'leaky_relu'
+  vae_weight: 10  # float, vae loss weights, if vae_based is False, this parameter has no effect
+  ce_weights: # list of float, ce loss weights, if null, no ce_loss
+    neurotransmitter: 20
+    class: 15
+    subclass: 5
+    supertype: 2.5  
+  class_dict: # dict, class num for each class, if null, no ce_loss
+    neurotransmitter: 10
+    class: 34
+    subclass: 338
+    supertype: 1201
+
+# training parameters
+training:
+  device: 'cuda'
+  training_steps: 2000
+  eval_steps: 100 
+  save_steps: 500 
+  log_dir: "logs"
+  save_dir: "saved_models"
+  run_name: 'test'
+
+# optimizer parameters 
+optimizer:
+  learning_rate: 1.0e-4
+  weight_decay: 0.02
+  warmup_steps: 200
+  anneal_steps: 1800
+  min_lr: 1.0e-7
+
+
