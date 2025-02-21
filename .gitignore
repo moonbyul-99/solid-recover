@@ -1,0 +1,16 @@
+# 忽略所有 .log 文件
+*.out
+
+# 忽略所有 __pycache__ 目录
+__pycache__/
+
+# 忽略所有 .ipynb_checkpoints 目录
+.ipynb_checkpoints/
+
+# 忽略特定目录
+/logs/
+/notebook/
+/saved_models/
+/src/logs/
+/src/saved_models/
+
