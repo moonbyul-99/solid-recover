@@ -1,0 +1,26 @@
+# paired config 
+# latent dim 1024, batch size 2048, lr scheduler, large batchsize, test kld_align_loss 
+
+rna_config_path: /home/rsun@ZHANGroup.local/sr_project/configs/rna_configs/config_4.yaml
+ga_config_path: /home/rsun@ZHANGroup.local/sr_project/configs/ga_configs/config_4.yaml
+rna_checkpoint: /home/rsun@ZHANGroup.local/sr_project/saved_models/config_4_2025-02-19-12-45/checkpoint_16000.pth
+ga_checkpoint: /home/rsun@ZHANGroup.local/sr_project/saved_models/ga_config4_2025-02-20-07-15/checkpoint_12000.pth
+temperature: 0.1
+tau: 0.5
+rho: 0.1
+rna_weight: 1.0
+ga_weight: 1.0
+freeze_param: True
+learning_rate: 1.0e-4
+weight_decay: 0.05
+warmup_steps: 2000
+anneal_steps: 20000
+min_lr: 5.0e-6
+log_dir: logs
+save_dir: saved_models
+run_name: paired_config_vae
+num_steps: 25000
+device: 'cuda' 
+eval_steps: 50
+save_steps: 2000
+batchsize: 4096

@@ -13,4 +13,10 @@ __pycache__/
 /saved_models/
 /src/logs/
 /src/saved_models/
+/not_used/
+/notebook/
+/outs/
+/eval_data/
+
+
 

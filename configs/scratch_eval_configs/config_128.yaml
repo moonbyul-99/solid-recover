@@ -1,0 +1,29 @@
+# the templeate of sr scratch eval config
+# user should careful the param:
+# eval_id
+# rna_config, ga_config, rna_checkpoint_path, ga_checkpoint_path, use_pretrained
+# log_dir, save_dir recomment to be the same as the training function will add prefix
+# use_pretrained must be the same 
+
+# small, scratch, 2
+
+eval_id: 2 #1,2,3,4
+
+
+params:
+  rna_config: /home/rsun@ZHANGroup.local/sr_project/saved_models/config_small_2025-02-27-05-24/config.yaml
+  ga_config: /home/rsun@ZHANGroup.local/sr_project/saved_models/ga_config_small_2025-02-27-05-24/config.yaml
+  rna_checkpoint_path: /home/rsun@ZHANGroup.local/sr_project/saved_models/config_small_2025-02-27-05-24/checkpoint_16000.pth
+  ga_checkpoint_path: /home/rsun@ZHANGroup.local/sr_project/saved_models/ga_config_small_2025-02-27-05-24/checkpoint_12000.pth
+  batch_size: 128
+  use_pretrained: False
+  log_dir: logs/scratch_improve_2_128
+  save_dir: saved_models/scratch_improve_2_128
+  training_steps: 20000
+  eval_steps: 400
+  save_steps: 10000
+  lr: 8.0e-6
+  min_lr: 4.0e-6
+  warmup_steps: 4000
+  anneal_steps: 20000
+  device: "cuda"

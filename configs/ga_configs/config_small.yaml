@@ -1,5 +1,5 @@
 # config.yaml
-# get the vae+ce large model
+# get the ae + ce small model 128 dim
 
 omic: 
   model_type: "ga" #"ga" or "multiomic"
@@ -7,9 +7,9 @@ omic:
 network:
   feature_num: 31899
   hidden_dims:
-    - 1024
-    - 1024
-    - 1024
+    - 512
+    - 256
+    - 128
   dropout: 0.1
   layernorm_eps: 1.0e-8
   input_dropout: 0.4
@@ -34,7 +34,7 @@ training:
   save_steps: 6000
   log_dir: "logs"
   save_dir: "saved_models"
-  run_name: 'ga_config6'
+  run_name: 'ga_config_small'
 
 # optimizer parameters 
 optimizer:

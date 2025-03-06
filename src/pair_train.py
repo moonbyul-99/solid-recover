@@ -4,13 +4,13 @@ import numpy as np
 import pandas as pd 
 from torch.utils.data import DataLoader  
 import yaml
-from sr_model import single_sr, paired_sr
+from sr_project.src.sr_model_new import single_sr, paired_sr
 from dataset import omic_data 
 import torch
 import muon as mu 
 import json 
 import scanpy as sc 
-
+from sr_net import multi_model
 def load_data():
     mdata = mu.read_h5mu('/home/rsun@ZHANGroup.local/multi_pretrain/evaluation/notebook/eval_data/M_rna_1/mdata.h5mu')
     
@@ -45,7 +45,6 @@ def load_data():
     rna_train, rna_test = rna[train_idx,:], rna[test_idx,:]
     gadata_train, gadata_test = gadata[train_idx,:], gadata[test_idx,:]
     return rna_train, rna_test, gadata_train, gadata_test
-
 
 def main(config_path):
     """

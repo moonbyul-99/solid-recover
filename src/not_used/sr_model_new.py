@@ -4,6 +4,7 @@ Define the solid recover model
 import torch 
 import torch.nn as nn 
 import torch.nn.functional as F
+import math
 import numpy as np 
 from sr_net import sr_single_omic, multi_model
 import custom_scheduler
@@ -18,11 +19,6 @@ import muon as mu
 from torch.utils.data import DataLoader  
 from dataset import omic_data 
 import scanpy as sc
-import anndata as ad
-from tqdm import tqdm 
-
-from metrics import calculate_hit_rate, matching_metrics
-import pandas as pd
 
 @dataclass
 class NetworkConfig:
@@ -76,8 +72,9 @@ class PairedConfig:
     save_steps: int
     batchsize: int
     tau: float = field(default= 0.5)
-    rna_weight: float = field(default= 1)
-    ga_weight: float = field(default= 1)
+    rho: float = field(default= 0.1)
+    rna_weight: float = field(default=1.0)
+    ga_weight: float = field(default=1.0)
 
 class single_sr:
 
@@ -152,7 +149,7 @@ class single_sr:
         optimizer, scheduler = self.set_optimizer()
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
-        start_step = checkpoint['steps']
+        start_step = checkpoint['step']
         print(f"Checkpoint loaded from {checkpoint_path} at step {start_step}")
         return optimizer, scheduler, start_step
 
@@ -208,8 +205,7 @@ class single_sr:
     def train_model(self,
               train_loader,
               val_loader=None,
-              checkpoint_path=None,
-              save_config = True):
+              checkpoint_path=None):
 
         """
         Define optimizer, scheduler, writer
@@ -233,11 +229,9 @@ class single_sr:
         writer = SummaryWriter(log_dir = self.log_dir)
 
         # Write ori config to config.yaml in save_dir
-        if save_config:
-            config_path = os.path.join(self.save_dir, 'config.yaml')
-            with open(config_path, 'w') as file:
-                #yaml.dump(self.config.__dict__, file)
-                yaml.dump(self.config, file)
+        config_path = os.path.join(self.save_dir, 'config.yaml')
+        with open(config_path, 'w') as file:
+            yaml.dump(self.config.__dict__, file)
 
         """
         Training loop 
@@ -250,7 +244,7 @@ class single_sr:
         self.model.train()
 
         for _ in range(epoch_num):
-            for batch in train_loader:
+            for _, batch in enumerate(train_loader):
 
                 """
                 Data preparation
@@ -292,7 +286,7 @@ class single_sr:
                 if steps % self.save_steps == 0:
                     checkpoint_path = os.path.join(self.save_dir, f'checkpoint_{steps}.pth')
                     torch.save({
-                        'steps': steps,
+                        'step': steps,
                         'model_state_dict': self.model.state_dict(),
                         'optimizer_state_dict': optimizer.state_dict(),
                         'scheduler_state_dict': scheduler.state_dict(),
@@ -315,7 +309,7 @@ class single_sr:
         if steps % self.save_steps != 0:
             checkpoint_path = os.path.join(self.save_dir, f'checkpoint_{steps}.pth')
             torch.save({
-                'steps': steps,
+                'step': steps,
                 'model_state_dict': self.model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'scheduler_state_dict': scheduler.state_dict(),
@@ -329,49 +323,40 @@ class single_sr:
 class paired_sr:
 
     def __init__(self,
-                paired_config: Dict,
-                rna_config = None,
-                ga_config = None,
-                sr_rna = None,
-                sr_ga = None):
+                paired_config: Dict):
         
         self.paired_config = PairedConfig(**paired_config)
         """
         prepare rna config
         """
-        if rna_config is None:
-            with open(self.paired_config.rna_config_path, 'r') as file:
-                rna_config = yaml.safe_load(file)
+
+        with open(self.paired_config.rna_config_path, 'r') as file:
+            rna_config = yaml.safe_load(file)
         self.rna_config = rna_config
         """
         prepare ga config
         """
-        if ga_config is None:
-            with open(self.paired_config.ga_config_path, 'r') as file:
-                ga_config = yaml.safe_load(file)
+
+        with open(self.paired_config.ga_config_path, 'r') as file:
+            ga_config = yaml.safe_load(file)
         self.ga_config = ga_config
         
 
         ## ini rna model, if has checkpoint, load it
-        if sr_rna is None:
-            self.sr_rna = single_sr(self.rna_config)
-            print('Initialize rna model')
-            if self.paired_config.rna_checkpoint is not None:
-                self.sr_rna.load_checkpoint(self.paired_config.rna_checkpoint)
-                print('Load rna checkpoint')
-        else:
-            self.sr_rna = sr_rna 
+
+        self.sr_rna = single_sr(self.rna_config)
+        print('Initialize rna model')
+        if self.paired_config.rna_checkpoint is not None:
+            self.sr_rna.load_checkpoint(self.paired_config.rna_checkpoint)
+            print('Load rna checkpoint')
     
 
-        ## ini ga model, if has checkpoint, load it
-        if sr_ga is None: 
-            self.sr_ga = single_sr(self.ga_config)
-            print('Initialize ga model')
-            if self.paired_config.ga_checkpoint is not None:
-                self.sr_ga.load_checkpoint(self.paired_config.ga_checkpoint) 
-                print('Load ga checkpoint')
-        else:
-            self.sr_ga = sr_ga
+        ## ini ga model, if has checkpoint, load it 
+        self.sr_ga = single_sr(self.ga_config)
+        print('Initialize ga model')
+        if self.paired_config.ga_checkpoint is not None:
+            self.sr_ga.load_checkpoint(self.paired_config.ga_checkpoint) 
+            print('Load ga checkpoint')
 
         ## ini multi model
         self.temperature = self.paired_config.temperature
@@ -381,7 +366,7 @@ class paired_sr:
                                  self.sr_ga.model, 
                                  self.paired_config.temperature, 
                                  self.paired_config.tau,
-                                 #self.paired_config.rho,
+                                 self.paired_config.rho,
                                  self.paired_config.rna_weight,
                                  self.paired_config.ga_weight)
         print('Initialize multi model')
@@ -438,7 +423,7 @@ class paired_sr:
         optimizer, scheduler = self.set_optimizer()
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
-        start_step = checkpoint['steps']
+        start_step = checkpoint['step']
         print(f"Checkpoint loaded from {checkpoint_path} at step {start_step}")
         return optimizer, scheduler, start_step
 
@@ -470,16 +455,15 @@ class paired_sr:
                         if type(outputs[key]) == int:
                             eval_dic[key] += outputs[key] * N
                         else:
-                            eval_dic[key] += outputs[key] * N 
+                            eval_dic[key] += outputs[key].item() * N 
         
         for key in eval_dic:
             writer.add_scalar(f'{key}/val', eval_dic[key]/eval_count, eval_point)
         return None
-
+                        
     def train_model(self,
                     train_loader,
-                    val_loader = None,
-                    save_config = True):
+                    val_loader = None):
         
         """
         Define optimizer, scheduler, writer
@@ -493,10 +477,9 @@ class paired_sr:
             os.makedirs(self.save_dir)
 
         # Write paired_config to config.yaml in save_dir
-        if save_config:
-            config_path = os.path.join(self.save_dir, 'config.yaml')
-            with open(config_path, 'w') as file:
-                yaml.dump(self.paired_config.__dict__, file)
+        config_path = os.path.join(self.save_dir, 'config.yaml')
+        with open(config_path, 'w') as file:
+            yaml.dump(self.paired_config.__dict__, file)
 
         self.log_dir = os.path.join(self.paired_config.log_dir, '_'.join([self.paired_config.run_name, current_time]))
         if not os.path.exists(self.log_dir):
@@ -576,7 +559,7 @@ class paired_sr:
         '''
         checkpoint_path = os.path.join(self.save_dir, f'checkpoint_{steps}.pth')
         torch.save({
-                'steps': steps,
+                'epoch': epoch,
                 'model_state_dict': self.model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'scheduler_state_dict': scheduler.state_dict(),
@@ -584,246 +567,5 @@ class paired_sr:
             }, checkpoint_path)
         print(f"Checkpoint saved at {checkpoint_path}")
         return None
-
-
-"""
-define train function for cross modal alignment
-"""
-def phase_1_train(model,
-                data_loader,
-                log_dir,
-                save_dir,
-                training_steps = 1000,
-                lr = 1e-5,
-                device = 'cuda'):
-    '''
-    perform the single omic training, used for cross modal alignment
-    ''' 
-
-    """prepare writer"""
-
-    #current_time = datetime.now().strftime('%Y-%m-%d-%H-%M')
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    save_dir = os.path.join(save_dir, f'phase_1_{current_time}')
-    if not os.path.exists(save_dir):
-        os.makedirs(save_dir)
-
-    log_dir = os.path.join(log_dir, f'phase_1_{current_time}')
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
-    writer = SummaryWriter(log_dir = log_dir)
-
-    """ prepare optimizer"""
-    optimizer = optim.Adam(filter(lambda p: p.requires_grad, 
-                            model.parameters()), lr=lr)
-    
-    L = len(data_loader)
-    epoch_num = training_steps // L + 1
-
-    """set model to device and train state"""
-
-    model.to(device)
-    model.train()
-
-    steps = 0
-    for _ in range(epoch_num):
-        for batch in data_loader:
-            feature = batch['feature'].to(device)
-            outputs = model(feature, label_dic = None)
-
-            loss = outputs['loss']
-            loss.backward()
-
-            optimizer.step()
-            optimizer.zero_grad()
-
-            steps += 1
-
-            for key, values in outputs.items():
-                if 'loss' in key:
-                    writer.add_scalar(f'{key}/train', values, steps)
-            if steps >= training_steps:
-                break
-    ## Save the final model
-
-    checkpoint_path = os.path.join(save_dir, f'checkpoint_{steps}.pth')
-    torch.save({'model_state_dict': model.state_dict()}, checkpoint_path)
-    print(f"Final checkpoint saved at {checkpoint_path}")
-    return model
-
-def phase_2_train(model,
-                  train_loader,
-                  test_loader,
-                  log_dir,
-                  save_dir,
-                  training_steps, 
-                  eval_steps,
-                  save_steps,
-                  lr,
-                  min_lr,
-                  warmup_steps,
-                  anneal_steps,
-                  device = 'cuda',
-):
-    
-    ### create log_dir and save_dir
-
-    #timestamp = datetime.now().strftime('%Y-%m-%d_%H_%M')
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    log_dir = os.path.join(log_dir, f'phase_2_{timestamp}')
-    save_dir = os.path.join(save_dir, f'phase_2_{timestamp}')
-
-    os.makedirs(save_dir, exist_ok= True)
-    os.makedirs(log_dir, exist_ok= True)
-
-    ### make logger, optimizer, scheduler
-    writer = SummaryWriter(log_dir)
-    optimizer = optim.Adam(filter(lambda p: p.requires_grad, 
-                                model.parameters()), lr=lr)
-    model.to(device)
-
-    scheduler = custom_scheduler.WarmupCosineScheduler(
-                optimizer=optimizer,
-                warmup_steps=warmup_steps,
-                anneal_steps=anneal_steps,
-                min_lr=min_lr)
-    
-    ### calculate num_epochs 
-
-    num_epochs = training_steps // len(train_loader) + 1
-    steps = 0 
-
-    ### training loop 
-    for epoch in range(num_epochs):
-
-        for batch in train_loader:
-            model.train()
-
-            rna = batch['rna'].to(device)
-            ga = batch['ga'].to(device)
-
-            outputs = model(rna, ga) 
-            loss = outputs['loss'] 
-
-            loss.backward() 
-            optimizer.step()
-            scheduler.step()
-            optimizer.zero_grad()
-            steps += 1 
-
-            """
-            Update writer
-            """
-            for key, values in outputs.items():
-                if 'loss' in key:
-                    writer.add_scalar(f'{key}/train', values, steps)
-            writer.add_scalar('lr', scheduler.get_last_lr()[0], steps)
-
-        
-            '''save model when reach save steps'''
-
-            if steps % save_steps == 0:
-                checkpoint_path = os.path.join(save_dir, f'checkpoint_{steps}.pth')
-                torch.save({'model_state_dict': model.state_dict()},checkpoint_path)
-
-            '''perform evaluation when reach eval steps'''
-
-            if steps % eval_steps == 0:
-                model.eval()
-
-                eval_dic = {}
-                eval_count = 0
-
-                rna_embed_list = []
-                ga_embed_list = []
-
-                with torch.no_grad():
-                    for batch in test_loader:
-                        rna = batch['rna'].to(device)
-                        ga = batch['ga'].to(device)
-                        outputs = model(rna, ga)
-
-                        N = rna.shape[0]
-                        eval_count += N
-
-                        rna_embed_list.append(outputs['rna_embed'].detach().cpu().numpy())
-                        ga_embed_list.append(outputs['ga_embed'].detach().cpu().numpy())
-
-                        for key, value in outputs.items():
-                            if 'loss' in key:
-                                if key not in eval_dic:
-                                    eval_dic[key] = value*N
-                                else:
-                                    eval_dic[key] += value*N
-                        
-                    for key in eval_dic:
-                        writer.add_scalar(f'{key}/val', eval_dic[key]/eval_count, steps)
-
-
-                '''save the embedding'''   
-                rna_embed = np.concatenate(rna_embed_list)
-                ga_embed = np.concatenate(ga_embed_list) 
-                
-                N = rna_embed.shape[0]
-                sc_test = ad.AnnData(X = np.random.randn(N*2, 10),)
-
-                sc_test.obs.loc[:,'batch'] = ['rna']*N + ['atac']*N
-                sc_test.obs.loc[:,'idx'] = np.concatenate([np.arange(N), np.arange(N)])
-                sc_test.obsm['X_embed'] = np.concatenate([rna_embed, ga_embed])
-
-                sc.pp.neighbors(sc_test, use_rep = 'X_embed',metric='cosine')
-                sc.tl.umap(sc_test, min_dist = 0.1)
-
-                ax = sc.pl.umap(sc_test, color = 'batch', show=False)
-                fig = ax.get_figure()
-
-                ##### save model_weights, figure, model_embedding
-                fig.savefig(os.path.join(save_dir, f'{steps}_umap_vis.png'),bbox_inches='tight')
-                sc_test.write_h5ad(os.path.join(save_dir, f'model_embed_{steps}.h5ad'))
-
-            if steps >= training_steps:
-                break
-    '''
-    save the final model
-    '''
-    checkpoint_path = os.path.join(save_dir, f'checkpoint_{steps}.pth')
-    torch.save({'model_state_dict': model.state_dict()},checkpoint_path)
-
-    print('training finished, perform evaluation')
-    ## After training, generate the evaluation score
-    result = []
-    idx = []
-
-    for key in tqdm(range(eval_steps, training_steps, eval_steps)):
-        idx.append(f'epoch_{key}')
-        #print(str(key) + '===='*15)
-        path = os.path.join(save_dir, f'model_embed_{key}.h5ad')
-        sc_test = ad.read_h5ad(path)
-        rna = sc_test.obsm['X_embed'][sc_test.obs.batch == 'rna']
-        atac = sc_test.obsm['X_embed'][sc_test.obs.batch == 'atac']
-
-        ### calculate top_k hit rate
-        tmp = []
-        for i in [1,5,10,15,20,30,50,100]:
-            tmp.append(calculate_hit_rate(rna, atac, i, metric = 'cosine'))
-
-        ### calculate metric score
-        acc, ms, fs = matching_metrics(x=rna, y=atac, metric='cosine')
-        tmp = tmp + [acc,ms,fs]
-        result.append(tmp)
-
-    columns = [f'top_{i}_hit' for i in [1,5,10,15,20,30,50,100]]
-    columns = columns + ['acc', 'matchscore', 'foscttm']
-    res_df =pd.DataFrame(result, index = idx, columns = columns)
-    res_df.to_csv(os.path.join(save_dir, 'eval_result.csv'))
-    print('program over')
-    return None 
-
-
-
-                        
-
-
 
 

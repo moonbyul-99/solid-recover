@@ -9,6 +9,22 @@ import torch
 from datasets import load_from_disk, concatenate_datasets
 from torch.utils.data import Dataset, DataLoader 
 
+
+class single_data(Dataset):
+    '''
+    Define the dataset for single cell omic data
+    '''
+
+    def __init__(self,
+                 data):
+        self.data = data 
+    
+    def __len__(self):
+        return self.data.shape[0]
+    
+    def __getitem__(self, index):
+        return {'feature': self.data[index, :]}
+
 class omic_data(Dataset):
     """
     Define the dataset for single cell paired omics data,

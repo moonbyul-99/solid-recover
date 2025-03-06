@@ -1,5 +1,5 @@
 # config.yaml
-# get the vae+ce large model
+# get the ae + ce large model 1024 dim
 
 omic: 
   model_type: "ga" #"ga" or "multiomic"
@@ -34,7 +34,7 @@ training:
   save_steps: 6000
   log_dir: "logs"
   save_dir: "saved_models"
-  run_name: 'ga_config6'
+  run_name: 'ga_config_large'
 
 # optimizer parameters 
 optimizer:

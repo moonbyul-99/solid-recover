@@ -2,8 +2,7 @@
 
 # List of config paths
 config_paths=(
-    "/home/rsun@ZHANGroup.local/sr_project/configs/paired_configs/config_1.yaml"
-    "/home/rsun@ZHANGroup.local/sr_project/configs/paired_configs/config_2.yaml"
+    "/home/rsun@ZHANGroup.local/sr_project/configs/paired_configs/config_vae.yaml"
     #"/home/rsun@ZHANGroup.local/sr_project/configs/paired_configs/config_3.yaml"
     #"/home/rsun@ZHANGroup.local/sr_project/configs/paired_configs/config_4.yaml"
     #"/home/rsun@ZHANGroup.local/sr_project/configs/config_5.yaml"

@@ -293,14 +293,13 @@ class sr_single_omic(nn.Module):
         cell_embed = self.encoder_net(mask_x)
         
         if self.model_state == 'vae':
-            vae_output = self.reparam_module(cell_embed)
-            cell_embed = vae_output['cell_embed']
-            kld_loss = vae_output['kld_loss']
-            output = {'cell_embed': cell_embed,
-                  'kld_loss': kld_loss}
+            output = self.reparam_module(cell_embed)
         
         else:     
-            output = {'cell_embed': cell_embed}
+            output = {'cell_embed': cell_embed,}
+                        #'mean': None,
+                        #'log_var': None,
+                        #'kld_loss': None}
         return output
     def forward(self, feature, label_dic):
 
@@ -391,6 +390,7 @@ class multi_model(nn.Module):
                  ga_model,
                  temperature=0.1,
                  tau = 0.5,
+                 rho = 0,
                  rna_weight = 1,
                  ga_weight = 1):
         super().__init__()
@@ -400,6 +400,7 @@ class multi_model(nn.Module):
         ga_model: a pretrained ga model 
         temperature: clip temperature
         tau: clip loss weight
+        rho: kl_align loss weight, only used when two VAE model
         '''
         self.rna_model = rna_model
         self.ga_model = ga_model
@@ -409,8 +410,10 @@ class multi_model(nn.Module):
 
         self.cliploss = CLIPLoss(temperature)
         self.tau = tau
+        self.rho = rho
         self.rna_weight = rna_weight
         self.ga_weight = ga_weight
+    
     def freeze_param(self):
         for param in self.rna_model.encoder_net.encoder_header.parameters():
             param.requires_grad = False
@@ -450,10 +453,33 @@ class multi_model(nn.Module):
         return {'ga_embed': ga_out['cell_embed'],
                 'rna_embed': rna_out['cell_embed']}
 
+    def _kl_align(self, rna_mean, rna_log_var, ga_mean, ga_log_var):
+        '''
+        when aligning two vae model, use the sysmetric kl_align loss
+        ''' 
+        rna_var = torch.exp(rna_log_var)
+        ga_var = torch.exp(ga_log_var)
+        
+        rna_var = rna_var**2 
+        ga_var = ga_var**2
+
+        error_1 = (1/rna_var + 1/ga_var)*(rna_mean - ga_mean)**2
+        error_2 = rna_var/ga_var + ga_var/rna_var  
+
+        loss = (error_1 + error_2).sum(dim=1)
+        loss = 0.5*loss.mean()
+        return {'kl_align_loss': loss}
+
+
     def forward(self, rna, ga):
 
         rna_output = self.rna_model.encode_forward(rna)
         ga_output = self.ga_model.encode_forward(ga)
+
+        #{'cell_embed': z,
+        #'mean': mean,
+        #'log_var': log_var,
+        #'kld_loss': loss}
 
         if 'kld_loss' in rna_output:
             rna_kld = rna_output['kld_loss']
@@ -466,11 +492,23 @@ class multi_model(nn.Module):
             ga_kld = 0
 
         rna_embed = rna_output['cell_embed']
-        ga_embed = ga_output['cell_embed']
+        ga_embed = ga_output['cell_embed'] 
 
         ## cross prediction
         rna_recover = self.rna_model.decoder_net(ga_embed)
         ga_recover = self.ga_model.decoder_net(rna_embed)
+
+        ## if align two vae model, add kl_align_loss
+        if 'mean' in rna_output and 'mean' in ga_output:
+            rna_mean, rna_log_var = rna_output['mean'], rna_output['log_var']
+            ga_mean, ga_log_var = ga_output['mean'], ga_output['log_var']
+            kl_align_res = self._kl_align(rna_mean = rna_mean,
+                                          rna_log_var= rna_log_var,
+                                          ga_mean = ga_mean,
+                                          ga_log_var = ga_log_var)
+            kl_align_loss = kl_align_res['kl_align_loss']
+        else:
+            kl_align_loss = None
 
         #rna_loss = self.rna_model.recon_loss(rna, rna_recover, mean = 'none') + self.rna_model.vae_weight * rna_kld
         #ga_loss = self.ga_model.recon_loss(ga, ga_recover, mean = 'none') + self.ga_model.vae_weight * ga_kld
@@ -480,9 +518,10 @@ class multi_model(nn.Module):
         ## clip loss
 
         clip_loss = self.cliploss(rna_embed, ga_embed)
-        loss = self.rna_weight * rna_loss + self.ga_weight * ga_loss + self.tau * clip_loss 
-        
-        output = {'loss': loss,
+
+        if kl_align_loss == None:
+            loss = self.rna_weight * rna_loss + self.ga_weight * ga_loss + self.tau * clip_loss 
+            output = {'loss': loss,
                   'clip_loss': clip_loss,
                   'ga_loss': ga_loss,
                   'rna_loss': rna_loss,
@@ -490,4 +529,16 @@ class multi_model(nn.Module):
                   'ga_embed': ga_embed,
                   'rna_kld_loss': rna_kld,
                   'ga_kld_loss': ga_kld}
+        else:
+            loss = self.rna_weight * rna_loss + self.ga_weight * ga_loss + self.tau * clip_loss + self.rho * kl_align_loss # rna_kld + ga_kld
+        
+            output = {'loss': loss,
+                    'clip_loss': clip_loss,
+                    'ga_loss': ga_loss,
+                    'rna_loss': rna_loss,
+                    'rna_embed': rna_embed,
+                    'ga_embed': ga_embed,
+                    'rna_kld_loss': rna_kld,
+                    'ga_kld_loss': ga_kld,
+                    'kl_align_loss': kl_align_loss}
         return output
