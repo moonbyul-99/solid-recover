@@ -105,7 +105,6 @@ class single_sr:
                       warmup_steps: int, 
                       steady_1_steps: int, 
                       cosine_anneal_steps: int, 
-                      steady_2_steps: int, 
                       min_lr: float = 1e-6):
         '''
         Set optimizer, default is AdamW
@@ -116,7 +115,6 @@ class single_sr:
                                      warmup_steps = warmup_steps, 
                                      steady_1_steps = steady_1_steps, 
                                      cosine_anneal_steps = cosine_anneal_steps, 
-                                     steady_2_steps = steady_2_steps, 
                                      min_lr = min_lr)
         
     def set_project(self, project_dir):
@@ -203,7 +201,7 @@ class single_sr:
         self.model.train()
 
         for _ in range(epoch_num):
-            for batch in self.train_loader:
+            for batch in tqdm(self.train_loader):
 
                 feature = batch['feature'].to(device)
 

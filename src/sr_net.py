@@ -31,9 +31,9 @@ class fc_net(nn.Module):
         self.use_rmsnorm = use_rmsnorm 
 
         if self.use_rmsnorm:
-            self.proj = nn.Sequential([nn.Linear(input_dim, output_dim), nn.GELU(), nn.RMSNorm(output_dim), nn.Dropout(dropout_p)])
+            self.proj = nn.Sequential(nn.Linear(input_dim, output_dim), nn.GELU(), nn.RMSNorm(output_dim), nn.Dropout(dropout_p))
         else:
-            self.proj = nn.Sequential([nn.Linear(input_dim, output_dim), nn.GELU(), nn.Dropout(dropout_p)])
+            self.proj = nn.Sequential(nn.Linear(input_dim, output_dim), nn.GELU(), nn.Dropout(dropout_p))
 
     def forward(self, x):
         if self.use_residual:
@@ -122,7 +122,7 @@ class feature_decoder(nn.Module):
         self.hidden_dims = hidden_dims
 
         d = hidden_dims[-1]
-        self.decoder_header = nn.Sequential([nn.Linear(d, feature_num), nn.LeakyReLU()])
+        self.decoder_header = nn.Sequential(nn.Linear(d, feature_num), nn.LeakyReLU())
 
         fc_blocks = []
         for i in range(1, len(hidden_dims)):
@@ -131,8 +131,8 @@ class feature_decoder(nn.Module):
     
     def forward(self,z):
         z = self.fc_blocks(z)
-        z = self.decoder_header(x)
-        return z 
+        recon_x = self.decoder_header(z)
+        return recon_x
 
 class sr_vae(nn.Module):
     """
@@ -152,10 +152,11 @@ class sr_vae(nn.Module):
         self.hidden_dims = self.encoder.hidden_dims
 
         d0 = self.hidden_dims[-1]
-        self.mu_proj = nn.Sequential([nn.Linear(d0, embed_dim), nn.RMSNorm(embed_dim)])
-        self.logvar_proj = nn.Sequential([nn.Linear(d0, embed_dim), nn.RMSNorm(embed_dim)])
+        self.mu_proj = nn.Sequential(nn.Linear(d0, embed_dim), nn.RMSNorm(embed_dim))
+        self.logvar_proj = nn.Sequential(nn.Linear(d0, embed_dim), nn.RMSNorm(embed_dim))
 
-        decoder_hidden_dims = self.hidden_dims.append(embed_dim) 
+        self.hidden_dims.append(embed_dim) 
+        decoder_hidden_dims = self.hidden_dims.copy()
         decoder_hidden_dims.reverse() 
         self.decoder = feature_decoder(feature_num, decoder_hidden_dims, use_rmsnorm, use_residual, dropout_p)
 
@@ -196,9 +197,10 @@ class sr_ae(nn.Module):
         self.hidden_dims = self.encoder.hidden_dims
 
         d0 = self.hidden_dims[-1]
-        self.embed_proj = nn.Sequential([nn.Linear(d0, embed_dim), nn.RMSNorm(embed_dim)])
+        self.embed_proj = nn.Sequential(nn.Linear(d0, embed_dim), nn.RMSNorm(embed_dim))
 
-        decoder_hidden_dims = self.hidden_dims.append(embed_dim) 
+        self.hidden_dims.append(embed_dim)
+        decoder_hidden_dims = self.hidden_dims.copy()
         decoder_hidden_dims.reverse() 
         self.decoder = feature_decoder(feature_num, decoder_hidden_dims, use_rmsnorm, use_residual, dropout_p)
 

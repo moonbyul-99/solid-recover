@@ -1,0 +1,34 @@
+# configs/rna_demo.yaml
+
+data:
+  dataset_path: "/home/rsun@ZHANGroup.local/rna_pretrain/hf_data/allen_23_training_new"
+  test_size: 0.025
+  seed: 42
+  batch_size: 2048                                
+
+model:
+  hidden_params:
+    hidden_dim: 1024  
+    block_num: 8      
+  embed_dim: 128      
+  use_rmsnorm: true
+  use_residual: true
+  dropout_p: 0.0
+  vae_model: true
+
+training:
+  project_dir: "runs/rna_demo"
+  train_steps: 500
+  eval_points: 50
+  save_points: 300
+  device: "cuda"
+
+optimizer:
+  lr: 0.001
+  warmup_steps: 100
+  steady_1_steps: 100
+  cosine_anneal_steps: 100
+  min_lr: 1e-6
+
+loss:
+  beta: 1.0
