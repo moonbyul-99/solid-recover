@@ -17,7 +17,7 @@ model:
   vae_model: true
 
 training:
-  project_dir: "runs/rna_vae_residual_1"
+  project_dir: "runs/rna_vae_residual_2"
   train_steps: 20000
   eval_points: 100
   save_points: 4000

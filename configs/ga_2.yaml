@@ -1,0 +1,34 @@
+# configs/rna_demo.yaml
+
+data:
+  dataset_path: "/home/rsun@ZHANGroup.local/atac_pretrain/hf_data/ga_training_new"
+  test_size: 0.025
+  seed: 42
+  batch_size: 2048                                
+
+model:
+  hidden_params:
+    hidden_dim: 1024  
+    block_num: 8      
+  embed_dim: 512    
+  use_rmsnorm: true
+  use_residual: true
+  dropout_p: 0.0
+  vae_model: true
+
+training:
+  project_dir: "runs/ga_vae_residual_2"
+  train_steps: 20000
+  eval_points: 100
+  save_points: 4000
+  device: "cuda"
+
+optimizer:
+  lr: 5e-4
+  warmup_steps: 400
+  steady_1_steps: 1200
+  cosine_anneal_steps: 12000
+  min_lr: 5e-6
+
+loss:
+  beta: 1.0
