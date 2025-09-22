@@ -17,7 +17,9 @@ import joblib
 from muon import MuData
 
 
-class Base_sr:
+class Base_sr(nn.Module):
+    def __init__(self):
+        super().__init__()
     @staticmethod
     def _adata_format(adata: AnnData) -> torch.Tensor:
             '''
@@ -123,7 +125,8 @@ class Base_sr:
                 
                 total_counts += B 
                 for key, value in loss_dic.items():
-                    eval_dic[f'{key}/val'] = eval_dic.get(f'{key}/val', 0) + value.item()*B 
+                    if 'loss' in key:
+                        eval_dic[f'{key}/val'] = eval_dic.get(f'{key}/val', 0) + value.item()*B 
 
         for key, value in eval_dic.items():
             self.writer.add_scalar(key, value/total_counts, eval_points)
@@ -142,7 +145,6 @@ class Base_sr:
         '''
         Training loop
         '''
-
         steps = 0 
         L = len(self.train_loader)
         epoch_num = train_steps // L + 1
@@ -168,6 +170,8 @@ class Base_sr:
                 steps += 1 
                 for key, value in loss_dic.items():
                     if 'loss' in key:
+                        self.writer.add_scalar(f'{key}/train', value, steps)
+                    if 'logit_scale' in key:
                         self.writer.add_scalar(f'{key}/train', value, steps)
                 self.writer.add_scalar('learning_rate', self.scheduler.get_last_lr()[0], steps)
 
@@ -202,7 +206,7 @@ class single_sr(Base_sr):
                  use_residual = False, 
                  dropout_p = 0.05,
                  vae_model = True,):
-        
+        super().__init__()
         if vae_model:
             self.model = sr_vae(feature_num, hidden_params, embed_dim, use_rmsnorm, use_residual, dropout_p)
             self.model_type = 'sr_vae'
@@ -664,6 +668,7 @@ class pair_sr_scratch(Base_sr):
                  use_residual = False, 
                  dropout_p = 0.05,
                  clip_temperature = 0.07):
+        super().__init__()
         self.model = sr_pair_vae(feature_num_1, feature_num_2, hidden_params_1, hidden_params_2, embed_dim, use_rmsnorm, use_residual, dropout_p, clip_temperature)
         self.model_type = 'sr_vae-sr_vae'
     
@@ -680,8 +685,8 @@ class pair_sr_scratch(Base_sr):
             mdata: MuData object,
             key_1: str, key corresponding to first modality
             key_2: str, key corresponding to second modality
-            train_idx: np.array, array([int]) corresponding to train samples indices
-            test_idx: np.array, array([int]) corresponding to test samples indices
+            train_idx: np.array, array([int]) or array([str]) corresponding to train samples indices 
+            test_idx: np.array, array([int]) or array([str]) corresponding to test samples indices
             test_size: float, default = 0.1, test dataset fraction
             random_state: int, default = 42, random seed for train test split
         '''
@@ -716,7 +721,8 @@ class pair_sr_scratch(Base_sr):
         x1 = batch['omic_1'].to(device)
         x2 = batch['omic_2'].to(device)
         outputs = self.model(x1, x2)
-        loss_dic = self.calculate_loss(x1, x2, outputs)
+        loss_dic = self.calculate_loss(x1, x2, outputs) 
+        loss_dic['logit_scale'] = self.loss.clip_loss.logit_scale.item()
         return outputs, loss_dic
         
 

@@ -238,7 +238,7 @@ class sr_pair_vae(nn.Module):
                  use_rmsnorm = True,
                  use_residual = False, 
                  dropout_p = 0.05,
-                 clip_temperature = 0.07):
+                 clip_temperature = 0.07):  ## TO DO del clip_temperature 
         super().__init__()
 
         self.model_1 = sr_vae(feature_num=feature_num_1, 
@@ -252,12 +252,14 @@ class sr_pair_vae(nn.Module):
                               embed_dim=embed_dim, 
                               use_rmsnorm=use_rmsnorm, 
                               use_residual=use_residual, )
-        self.clip_loss = CLIPLoss(temperature=clip_temperature)
+        #self.clip_loss = CLIPLoss(temperature=clip_temperature)
+    
+    
     def forward(self, x1, x2):
         z, z_mu, z_logvar, z_embed = self.model_1.get_embedding(x1)
         y,y_mu, y_logvar, y_embed = self.model_2.get_embedding(x2)
 
-        clip_loss = self.clip_loss(z_mu, y_mu)
+        #clip_loss = self.clip_loss(z_mu, y_mu)
         x1_z_recon = self.model_1.decoder(z_embed)
         x1_y_recon = self.model_1.decoder(y_embed)
 
@@ -277,7 +279,7 @@ class sr_pair_vae(nn.Module):
         
         return {'x1': x1_dic,
                 'x2': x2_dic,
-                'clip_loss': clip_loss, 
+                #'clip_loss': clip_loss, 
                 'x1_c_recon': x1_y_recon,
                 'x2_c_recon': x2_z_recon}
 

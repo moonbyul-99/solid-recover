@@ -15,7 +15,7 @@ class CLIPLoss(nn.Module):
     
     def __init__(self, temperature=0.07):
         super(CLIPLoss, self).__init__()
-        self.logit_scale = nn.Parameter(torch.Tensor([np.log(1 / 0.07)]))
+        self.logit_scale = nn.Parameter(torch.Tensor([np.log(1 / temperature)]))
     
     def reset_temperature(self, temperature = None):
         if temperature is not None:
@@ -123,7 +123,8 @@ class VAE_clip_loss(nn.Module):
                                      mu = x2_dic['z_mu'],
                                      logvar = x2_dic['z_logvar'])
         
-        clip_loss = self.clip_loss(x1_dic['z_embed'], x2_dic['z_embed'])
+        clip_loss = self.clip_loss(x1_dic['z_embed'], x2_dic['z_embed'])  ## original result is computed using z_embed
+        #clip_loss = self.clip_loss(x1_dic['z_mu'], x2_dic['z_mu'])  ## clip using z_mu is not good in cross match evaluation 
 
         cross_loss_1 = self.recon_loss(sr_pair_out['x1_c_recon'], x1)
         cross_loss_2 = self.recon_loss(sr_pair_out['x2_c_recon'], x2)
