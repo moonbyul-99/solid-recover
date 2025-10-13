@@ -10,6 +10,12 @@ import numpy as np
 from typing import List, Dict, Union, Any
 from sr_loss import *
 
+######################################
+## basic network module
+######################################
+
+
+
 class fc_net(nn.Module):
 
     '''
@@ -135,6 +141,11 @@ class feature_decoder(nn.Module):
         recon_x = self.decoder_header(z)
         return recon_x
 
+######################################
+## network module for single omic
+######################################
+
+
 class sr_vae(nn.Module):
     """
     Define the vae structure of solid recover
@@ -224,6 +235,11 @@ class sr_ae(nn.Module):
                 'z_embed': z_embed,
                 'x_recon': x_recon}
 
+
+######################################
+## network module for paired omics
+######################################
+
 class sr_pair_vae(nn.Module):
 
     '''
@@ -237,8 +253,8 @@ class sr_pair_vae(nn.Module):
                  embed_dim: int,
                  use_rmsnorm = True,
                  use_residual = False, 
-                 dropout_p = 0.05,
-                 clip_temperature = 0.07):  ## TO DO del clip_temperature 
+                 dropout_p = 0.05,):
+
         super().__init__()
 
         self.model_1 = sr_vae(feature_num=feature_num_1, 
@@ -252,14 +268,21 @@ class sr_pair_vae(nn.Module):
                               embed_dim=embed_dim, 
                               use_rmsnorm=use_rmsnorm, 
                               use_residual=use_residual, )
-        #self.clip_loss = CLIPLoss(temperature=clip_temperature)
-    
+    def set_loss(self, 
+                 vae_beta_1: float = 1.0, 
+                 vae_beta_2: float = 1.0, 
+                 clip_weight: float = 1.0,
+                 cross_recon_1: float = 0.2,
+                 cross_recon_2: float = 0.2,
+                 temperature: float = 0.07,
+                 trainable_clip_temperature: bool = False):
+        self.loss = VAE_clip_loss(vae_beta_1, vae_beta_2, clip_weight, cross_recon_1, cross_recon_2, temperature)
+        self.loss.clip_loss.logit_scale.requires_grad = trainable_clip_temperature
     
     def forward(self, x1, x2):
         z, z_mu, z_logvar, z_embed = self.model_1.get_embedding(x1)
         y,y_mu, y_logvar, y_embed = self.model_2.get_embedding(x2)
 
-        #clip_loss = self.clip_loss(z_mu, y_mu)
         x1_z_recon = self.model_1.decoder(z_embed)
         x1_y_recon = self.model_1.decoder(y_embed)
 
@@ -277,10 +300,15 @@ class sr_pair_vae(nn.Module):
                   'z_logvar': y_logvar,
                   'z_embed': y_embed}
         
-        return {'x1': x1_dic,
-                'x2': x2_dic,
-                #'clip_loss': clip_loss, 
-                'x1_c_recon': x1_y_recon,
-                'x2_c_recon': x2_z_recon}
+        sr_pair_out = {'x1': x1_dic,
+                        'x2': x2_dic,
+                        'x1_c_recon': x1_y_recon,
+                        'x2_c_recon': x2_z_recon}
 
-    
+
+
+        loss_dic = self.loss(x1,x2,sr_pair_out)
+        loss_dic['logit_scale'] = self.loss.clip_loss.logit_scale.item()
+
+        return sr_pair_out, loss_dic
+

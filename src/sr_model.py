@@ -54,12 +54,13 @@ class Base_sr(nn.Module):
         self.train_dataset = train_dataset
         self.test_dataset = test_dataset
     
-
     def set_dataloader(self, batch_size: int = 128):
         self.train_loader = DataLoader(self.train_dataset, batch_size = batch_size, shuffle = True)
         self.test_loader = DataLoader(self.test_dataset, batch_size = batch_size, shuffle = False)
         return None
 
+    def set_loss(self):
+        raise NotImplementedError('Subclass must implement this method')
     def set_optimizer(self, 
                       lr: float ,
                       warmup_steps: int, 
@@ -101,23 +102,24 @@ class Base_sr(nn.Module):
         self.writer = SummaryWriter(log_dir = self.log_dir)
 
     def _process_and_calculate_loss(self, batch, device):
+
+        '''
+        Perform the forward pass and calculate loss
+        return outputs_dic and loss_dic
+        '''
         raise NotImplementedError('Subclass must implement this method')
+
+
+
     def eval_model(self, eval_points, device = 'cuda'):
         self.model.eval()
     
         total_counts = 0
         eval_dic = {}
 
-
         with torch.no_grad():
             for batch in self.test_loader:
                 outputs, loss_dic = self._process_and_calculate_loss(batch, device)
-                # x = batch['feature'].to(device)
-                # outputs = self.model(x)
-                # B = x.shape[0]
-
-                # loss_dic = self.calculate_loss(outputs, x)
-                
                 for key in outputs:
                     if 'recon' in key:
                         B = outputs[key].shape[0]
@@ -131,7 +133,7 @@ class Base_sr(nn.Module):
         for key, value in eval_dic.items():
             self.writer.add_scalar(key, value/total_counts, eval_points)
 
-    def init_model(self, checkpoint_path = None):
+    def load_model(self, checkpoint_path = None):
         if checkpoint_path is not None:
             checkpoint = torch.load(checkpoint_path)
             self.model.load_state_dict(checkpoint['model_state_dict'])
@@ -154,11 +156,6 @@ class Base_sr(nn.Module):
 
         for _ in range(epoch_num):
             for batch in tqdm(self.train_loader):
-
-                # feature = batch['feature'].to(device)
-
-                # outputs = self.model(feature)
-                # loss_dic = self.calculate_loss(outputs, feature)
                 outputs, loss_dic = self._process_and_calculate_loss(batch, device)
 
                 loss = loss_dic['loss']
@@ -218,36 +215,6 @@ class single_sr(Base_sr):
         self.embed_dim = self.model.embed_dim
         self.classifiers = None
         self.labelencoders = None
-        
-    # @staticmethod
-    # def _adata_format(adata: AnnData) -> torch.Tensor:
-    #         '''
-    #         Check the .X format of adata and convert it to torch.Tensor (float32).
-
-    #         Supports:
-    #         - torch.Tensor
-    #         - scipy.sparse matrix (csr, csc, etc.)
-    #         - numpy.matrix
-
-    #         Returns:
-    #             torch.Tensor: of dtype float32, shape (n_obs, n_vars)
-    #         '''
-    #         X = adata.X
-
-    #         # Case 1: already a torch.Tensor
-    #         if isinstance(X, torch.Tensor):
-    #             return X.float()  # ensure float32
-
-    #         # Case 2: scipy sparse matrix
-    #         if sparse.issparse(X):
-    #             X = X.toarray()  # convert to dense numpy array
-
-    #         # Case 3: numpy.ndarray (most common)
-    #         if isinstance(X, np.ndarray):
-    #             # Ensure contiguous array for efficiency
-    #             X = np.ascontiguousarray(X)
-    #             tensor = torch.from_numpy(X).float()
-    #             return tensor
 
     def create_dataset(self, 
                     adata: AnnData,
@@ -276,54 +243,6 @@ class single_sr(Base_sr):
         self.train_dataset = single_data(self._adata_format(train_data))
         self.test_dataset = single_data(self._adata_format(test_data))
         return None 
-    
-    # def set_dataset(self, train_dataset:Dataset, test_dataset: Dataset):
-    #     self.train_dataset = train_dataset
-    #     self.test_dataset = test_dataset
-    # def set_dataloader(self, batch_size: int = 128):
-    #     self.train_loader = DataLoader(self.train_dataset, batch_size = batch_size, shuffle = True)
-    #     self.test_loader = DataLoader(self.test_dataset, batch_size = batch_size, shuffle = False)
-    #     return None
-
-    # def set_optimizer(self, 
-    #                   lr: float ,
-    #                   warmup_steps: int, 
-    #                   steady_1_steps: int, 
-    #                   cosine_anneal_steps: int, 
-    #                   min_lr: float = 1e-6):
-    #     '''
-    #     Set optimizer, default is AdamW
-    #     '''
-
-    #     self.optimizer = torch.optim.AdamW(self.model.parameters(), lr = lr)
-    #     self.scheduler = sr_scheduler(self.optimizer, 
-    #                                  warmup_steps = warmup_steps, 
-    #                                  steady_1_steps = steady_1_steps, 
-    #                                  cosine_anneal_steps = cosine_anneal_steps, 
-    #                                  min_lr = min_lr)
-        
-    # def set_project(self, project_dir):
-    #     '''
-    #     create a project directory, save the model checkpoint, tensorboard log 
-    #     create a tensorboard log writer
-    #     '''
-
-    #     if not os.path.exists(project_dir):
-    #         os.makedirs(project_dir, exist_ok= True)
-        
-    #     else:
-    #         timestamp = datetime.now().strftime('%Y%m%d_%H%M')
-    #         project_dir = f'{project_dir}_{timestamp}'
-    #         os.makedirs(project_dir, exist_ok=True)
-
-
-    #     self.project_dir = project_dir
-    #     self.model_dir = os.path.join(self.project_dir, 'models')
-    #     os.makedirs(self.model_dir, exist_ok=True)
-    #     self.log_dir = os.path.join(self.project_dir, 'logs')
-    #     os.makedirs(self.log_dir, exist_ok=True)
-
-    #     self.writer = SummaryWriter(log_dir = self.log_dir)
 
     def set_loss(self,beta: float = 1.0):
         if self.model_type == 'sr_vae':
@@ -343,82 +262,6 @@ class single_sr(Base_sr):
             loss_dic = self.loss(x_recon, x)
         return loss_dic
 
-    # def eval_model(self, eval_points, device = 'cuda'):
-    #     self.model.eval()
-    #     total_counts = 0
-    #     eval_dic = {}
-
-    #     with torch.no_grad():
-    #         for batch in self.test_loader:
-    #             x = batch['feature'].to(device)
-    #             outputs = self.model(x)
-    #             B = x.shape[0]
-
-    #             loss_dic = self.calculate_loss(outputs, x)
-                
-    #             total_counts += B 
-    #             for key, value in loss_dic.items():
-    #                 eval_dic[f'{key}/val'] = eval_dic.get(f'{key}/val', 0) + value.item()*B 
-
-    #     for key, value in eval_dic.items():
-    #         self.writer.add_scalar(key, value/total_counts, eval_points)
-
-    # def init_model(self, checkpoint_path = None):
-    #     if checkpoint_path is not None:
-    #         checkpoint = torch.load(checkpoint_path)
-    #         self.model.load_state_dict(checkpoint['model_state_dict'])
-
-    # def train_model(self, 
-    #                 train_steps,
-    #                 eval_points,
-    #                 save_points,
-    #                 device = 'cuda'):
-
-    #     '''
-    #     Training loop
-    #     '''
-
-    #     steps = 0 
-    #     L = len(self.train_loader)
-    #     epoch_num = train_steps // L + 1
-    #     self.model.to(device) 
-
-    #     self.model.train()
-
-    #     for _ in range(epoch_num):
-    #         for batch in tqdm(self.train_loader):
-
-    #             feature = batch['feature'].to(device)
-
-    #             outputs = self.model(feature)
-    #             loss_dic = self.calculate_loss(outputs, feature)
-
-    #             loss = loss_dic['loss']
-    #             loss.backward()
-    #             self.optimizer.step()
-    #             self.scheduler.step()
-    #             self.optimizer.zero_grad() 
-
-    #             steps += 1 
-    #             for key, value in loss_dic.items():
-    #                 if 'loss' in key:
-    #                     self.writer.add_scalar(f'{key}/train', value, steps)
-    #             self.writer.add_scalar('learning_rate', self.scheduler.get_last_lr()[0], steps)
-
-    #             if steps > train_steps:
-    #                 self.eval_model(eval_points = steps, device = device)
-    #                 ckpt_path = os.path.join(self.model_dir, f'ckpt_{steps}.pth')
-    #                 torch.save({'model_state_dict': self.model.state_dict()}, ckpt_path)
-    #                 break 
-    #             if steps % eval_points == 0:
-    #                 self.eval_model(eval_points = steps, device = device) 
-    #             if steps % save_points == 0:
-    #                 ckpt_path = os.path.join(self.model_dir, f'ckpt_{steps}.pth')
-    #                 torch.save({'model_state_dict': self.model.state_dict()}, ckpt_path)
-    #         if steps > train_steps:
-    #             break 
-
-    #     print('SR model training completed.')
     def _process_and_calculate_loss(self, batch, device):
         feature = batch['feature'].to(device)
         outputs = self.model(feature)
@@ -666,10 +509,9 @@ class pair_sr_scratch(Base_sr):
                  embed_dim: int,
                  use_rmsnorm = True,
                  use_residual = False, 
-                 dropout_p = 0.05,
-                 clip_temperature = 0.07):
+                 dropout_p = 0.05,):
         super().__init__()
-        self.model = sr_pair_vae(feature_num_1, feature_num_2, hidden_params_1, hidden_params_2, embed_dim, use_rmsnorm, use_residual, dropout_p, clip_temperature)
+        self.model = sr_pair_vae(feature_num_1, feature_num_2, hidden_params_1, hidden_params_2, embed_dim, use_rmsnorm, use_residual, dropout_p)#, clip_temperature)
         self.model_type = 'sr_vae-sr_vae'
     
     def create_dataset(self, 
@@ -711,18 +553,22 @@ class pair_sr_scratch(Base_sr):
                  clip_weight: float = 1.0,
                  cross_recon_1: float = 0.2,
                  cross_recon_2: float = 0.2,
-                 temperature: float = 0.07):
-        self.loss = VAE_clip_loss(vae_beta_1, vae_beta_2, clip_weight, cross_recon_1, cross_recon_2, temperature)
-    
-    def calculate_loss(self, x1, x2, sr_pair_out:Dict):
-        return self.loss(x1, x2, sr_pair_out)
+                 temperature: float = 0.07,
+                 trainable_clip_temperature: bool = False):
+        self.model.set_loss(vae_beta_1, vae_beta_2, clip_weight, cross_recon_1, cross_recon_2, temperature, trainable_clip_temperature)
+
+        # self.loss = VAE_clip_loss(vae_beta_1, vae_beta_2, clip_weight, cross_recon_1, cross_recon_2, temperature)
+        # self.loss.clip_loss.logit_scale.requires_grad = trainable_clip_temperature
+    # def calculate_loss(self, x1, x2, sr_pair_out:Dict):
+    #     return self.loss(x1, x2, sr_pair_out)
     
     def _process_and_calculate_loss(self, batch, device):
         x1 = batch['omic_1'].to(device)
         x2 = batch['omic_2'].to(device)
-        outputs = self.model(x1, x2)
-        loss_dic = self.calculate_loss(x1, x2, outputs) 
-        loss_dic['logit_scale'] = self.loss.clip_loss.logit_scale.item()
+        outputs, loss_dic = self.model(x1,x2)
+        # outputs = self.model(x1, x2)
+        # loss_dic = self.calculate_loss(x1, x2, outputs) 
+        # loss_dic['logit_scale'] = self.loss.clip_loss.logit_scale.item()
         return outputs, loss_dic
         
 

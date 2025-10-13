@@ -7,16 +7,23 @@ import os
 import numpy as np 
 import pandas as pd 
 from typing import List, Dict, Union, Any 
-import anndata
+import muon as mu 
+import scanpy as sc
 import sys 
 import yaml 
+
+import sys
 import argparse
-import shutil
-import warnings 
-# --- 全局设置 ---
-warnings.filterwarnings('ignore', category=FutureWarning)
-warnings.filterwarnings('ignore', category=UserWarning)
-warnings.filterwarnings('ignore', category=anndata.ImplicitModificationWarning)
+import yaml
+from sr_model import *
+from sr_dataset import *
+import os
+import numpy as np
+import pandas as pd
+from typing import List, Dict, Union, Any
+import muon as mu
+import scanpy as sc
+from load_eval_data import *
 
 def load_config(config_path):
     """Loads and parses a YAML config file."""
@@ -33,14 +40,17 @@ def main():
     # Load and print the config.
     config = load_config(args.config)
     print("Loaded config:")
-    # print(yaml.dump(config, default_flow_style=False))
+    print(yaml.dump(config, default_flow_style=False))
 
-    # === prepare dataset ===
+    # === Data ===
     data_cfg = config['data']
-    train_data_path = data_cfg['train_data_path']
-    test_data_path = data_cfg['test_data_path']
-    key_1, key_2 = data_cfg['key_1'], data_cfg['key_2']
-    train_dataset, test_dataset = data_prepare(train_data_path, test_data_path, key_1, key_2)
+    train_dataset, test_dataset = data_prepare(
+        data_cfg['data_path'],
+        data_cfg['train_split_path'],
+        data_cfg['test_split_path'],
+        data_cfg['key_1'],
+        data_cfg['key_2']
+    )
     
     # === Model ===
     model_cfg = config['model']
@@ -60,12 +70,13 @@ def main():
         use_rmsnorm=model_cfg['use_rmsnorm'],
         use_residual=model_cfg['use_residual'],
         dropout_p=model_cfg['dropout_p'],)
+        #clip_temperature=model_cfg['clip_temperature']
+    #)
 
     # === Setup ===
     pair_model.set_dataset(train_dataset, test_dataset)
     pair_model.set_dataloader(batch_size=data_cfg['batch_size'])
 
-    # === Loss ===
     loss_cfg = config['loss']
     pair_model.set_loss(
         vae_beta_1=loss_cfg['vae_beta_1'],
@@ -76,8 +87,8 @@ def main():
         temperature=float(loss_cfg['temperature']),
         trainable_clip_temperature=loss_cfg['trainable_clip_temperature']
     )
-    
-    # === Optimizer ===
+    pair_model.loss.to(config['training']['device'])
+
     opt_cfg = config['optimizer']
     pair_model.set_optimizer(
         lr=float(opt_cfg['lr']),
@@ -89,11 +100,6 @@ def main():
 
     train_cfg = config['training']
     pair_model.set_project(train_cfg['project_dir'])
-
-    # === Copy config to project dir ===
-    import shutil
-    config_copy_path = os.path.join(pair_model.project_dir, 'config.yaml')
-    shutil.copyfile(args.config, config_copy_path)
 
     # === Train ===
     pair_model.train_model(
@@ -107,3 +113,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

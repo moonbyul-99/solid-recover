@@ -1,3 +1,9 @@
 *.pth
-*.png
+*.h5ad
 notebook/
+data/
+configs/pair_scratch_old/
+eval_result/
+evaluation/
+outs/
+runs/
