@@ -178,6 +178,7 @@ if __name__ == '__main__':
     # output_dir = '/home/rsun@ZHANGroup.local/solid-recover/outputs/pair_scratch_case4_20251012_1650/eval_result'
     # compare_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method'
     # case_id = 'case_4'
+    # figure_id = 'case4'
 
     # output_dir = '/home/rsun@ZHANGroup.local/solid-recover/outputs/pair_scratch_case4_20251013_0338/eval_result'
     # compare_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method'
@@ -193,6 +194,7 @@ if __name__ == '__main__':
     # compare_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method'
     # case_id = 'case_4'
     # figure_id = 'case4_20251013_0754'
+
     # output_dir = '/home/rsun@ZHANGroup.local/solid-recover/outputs/pair_scratch_case4_20251013_1009/eval_result'
     # compare_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method'
     # case_id = 'case_4'
@@ -213,18 +215,18 @@ if __name__ == '__main__':
     # case_id = 'case_4'
     # figure_id = 'case4_20251014_0134'
 
-    # output_dir = '/home/rsun@ZHANGroup.local/solid-recover/outputs/pair_scratch_case4_20251014_0205/eval_result'
-    # compare_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method'
-    # case_id = 'case_4'
-    # figure_id = 'case4_20251014_0205'
+    output_dir = '/home/rsun@ZHANGroup.local/solid-recover/outputs/pair_scratch_case4_20251014_0205/eval_result'
+    compare_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method'
+    case_id = 'case_4'
+    figure_id = 'case4_20251014_0205'
 
     # output_dir = '/home/rsun@ZHANGroup.local/solid-recover/outputs/pair_scratch_case3_20251013_0339/eval_result'
     # compare_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method'
     # case_id = 'case_3'
     # figure_id = 'case3_trainable_t'
 
-    output_dir = '/home/rsun@ZHANGroup.local/solid-recover/outputs/pair_scratch_case2/eval_result'
-    compare_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method'
-    case_id = 'case_2'
-    figure_id = 'case2'
+    # output_dir = '/home/rsun@ZHANGroup.local/solid-recover/outputs/pair_scratch_case2/eval_result'
+    # compare_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method'
+    # case_id = 'case_2'
+    # figure_id = 'case2'
     line_plot_compare( output_dir , compare_dir, case_id,figure_id = figure_id)
