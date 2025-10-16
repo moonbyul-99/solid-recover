@@ -10,16 +10,16 @@ data:
 model:
   feature_num_1: 14108 # 在脚本中动态确定
   feature_num_2: 143989 # 在脚本中动态确定
-  hidden_params_1: [1024,384]
-  hidden_params_2: [1024,384]
-  embed_dim: 384
+  hidden_params_1: [1024,256]
+  hidden_params_2: [1024,256]
+  embed_dim: 256
   use_rmsnorm: true
   use_residual: true
   dropout_p: 0.0
 
 training:
   project_dir: "outputs/pair_scratch_case4"
-  train_steps: 16000
+  train_steps: 12000
   eval_points: 80
   save_points: 300
   device: "cuda"

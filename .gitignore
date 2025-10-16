@@ -1,5 +1,7 @@
 *.pth
 *.h5ad
+*.ipynb
+*.h5mu
 notebook/
 data/
 configs/pair_scratch_old/
@@ -7,3 +9,4 @@ eval_result/
 evaluation/
 outs/
 runs/
+compare_method/

@@ -125,17 +125,18 @@ def single_model_evaluation(pair_model, ckpt_steps, output_dir, device = 'cpu'):
 
 
     #=== save predict result =====
-    X = np.concatenate([x1, atac2rna], axis = 0)
-    adata = ad.AnnData(X)
-    adata.obs['label'] = ['ori_rna']*x1.shape[0] + ['pred_rna']*x1.shape[0]
+    ##  do not save every predict result for memory
+    # X = np.concatenate([x1, atac2rna], axis = 0)
+    # adata = ad.AnnData(X)
+    # adata.obs['label'] = ['ori_rna']*x1.shape[0] + ['pred_rna']*x1.shape[0]
 
-    adata.write_h5ad(os.path.join(eval_res_dir, 'rna_test.h5ad'))
+    # adata.write_h5ad(os.path.join(eval_res_dir, 'rna_test.h5ad'))
 
-    X = np.concatenate([x2, rna2atac], axis = 0)
-    adata = ad.AnnData(X)
-    adata.obs['label'] = ['ori_atac']*x1.shape[0] + ['pred_atac']*x1.shape[0]
+    # X = np.concatenate([x2, rna2atac], axis = 0)
+    # adata = ad.AnnData(X)
+    # adata.obs['label'] = ['ori_atac']*x1.shape[0] + ['pred_atac']*x1.shape[0]
 
-    adata.write_h5ad(os.path.join(eval_res_dir, 'atac_test.h5ad'))
+    # adata.write_h5ad(os.path.join(eval_res_dir, 'atac_test.h5ad'))
 
     print('Cross prediction pipe over')
 
@@ -181,10 +182,13 @@ def single_model_evaluation(pair_model, ckpt_steps, output_dir, device = 'cpu'):
     return None
 def single_model_whole_evaluation(output_dir):
     pair_model = prepare_evaluation(output_dir)
-    
-    
-    for ckpt_steps in tqdm(range(1,21)):
-        ckpt_steps = int(500*ckpt_steps)
+    ckpt_lists = os.listdir(os.path.join(output_dir, 'models'))
+
+    #for ckpt_steps in tqdm(range(1,21)):
+    for key in tqdm(ckpt_lists):
+        tmp = key.split('.')[0]
+        tmp = tmp.split('_')[-1]
+        ckpt_steps = int(tmp)
         single_model_evaluation(pair_model, ckpt_steps, output_dir) 
     print('✅ Evaluation OVER')
     return None

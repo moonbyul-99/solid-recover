@@ -12,14 +12,14 @@ model:
   feature_num_2: 144091 # 在脚本中动态确定
   hidden_params_1: [1024,512,256]
   hidden_params_2: [1024,512,256]
-  embed_dim: 32
+  embed_dim: 11
   use_rmsnorm: true
   use_residual: true
   dropout_p: 0.0
 
 
 training:
-  project_dir: "outputs/pair_scratch_case2_32dim"
+  project_dir: "outputs/pair_scratch_case2_11dim"
   train_steps: 10000
   eval_points: 80
   save_points: 500

@@ -10,32 +10,32 @@ data:
 model:
   feature_num_1: 14108 # 在脚本中动态确定
   feature_num_2: 143989 # 在脚本中动态确定
-  hidden_params_1: [1024,384]
-  hidden_params_2: [1024,384]
-  embed_dim: 384
+  hidden_params_1: [1024,384,128]
+  hidden_params_2: [1024,384,128]
+  embed_dim: 128
   use_rmsnorm: true
   use_residual: true
   dropout_p: 0.0
 
 training:
   project_dir: "outputs/pair_scratch_case4"
-  train_steps: 16000
+  train_steps: 8000
   eval_points: 80
-  save_points: 300
+  save_points: 500
   device: "cuda"
 
 optimizer:
   lr: 8e-4
   warmup_steps: 2000
-  steady_1_steps: 8000
-  cosine_anneal_steps: 12000
+  steady_1_steps: 4000
+  cosine_anneal_steps: 6000
   min_lr: 1e-4
 
 loss:
   vae_beta_1: 1.0
   vae_beta_2: 1.0
-  clip_weight: 100.0
-  cross_recon_1: 0.8
-  cross_recon_2: 0.8
-  temperature: 0.12
+  clip_weight: 60.0
+  cross_recon_1: 0.4
+  cross_recon_2: 0.4
+  temperature: 0.07
   trainable_clip_temperature: False
