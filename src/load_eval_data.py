@@ -62,7 +62,7 @@ def split_data(data_path: str, train_split_path: str, test_split_path: str, save
     mu.write_h5mu(os.path.join(save_dir, 'test.h5mu'),mdata_test)
     print('OVER')
     
-def data_prepare(train_data_path: str, test_data_path: str, key_1: str, key_2: str):
+def data_prepare(train_data_path: str, test_data_path: str, key_1: str, key_2: str, to_gpu: bool = False):
 
     '''
     prepare the paired data for sr training
@@ -81,6 +81,10 @@ def data_prepare(train_data_path: str, test_data_path: str, key_1: str, key_2: s
 
     train_dataset = pair_data(Base_sr._adata_format(train_data_1), Base_sr._adata_format(train_data_2))
     test_dataset = pair_data(Base_sr._adata_format(test_data_1), Base_sr._adata_format(test_data_2))
+    
+    if to_gpu:
+        train_dataset.to_gpu()
+        test_dataset.to_gpu()
     return train_dataset, test_dataset
 
 

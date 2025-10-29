@@ -29,11 +29,12 @@ def main():
     """Main function to run the training process from a config file."""
     parser = argparse.ArgumentParser(description='Train SR Model with Config')
     parser.add_argument('--config', type=str, required=True, help='Path to config YAML file')
+    parser.add_argument('--to_gpu', type=str, default='False', help='Whether to move dataset into GPU')
     args = parser.parse_args()
 
     # Load and print the config.
     config = load_config(args.config)
-    original_config = copy.deepcopy(config)
+    # original_config = copy.deepcopy(config)
     print("Loaded config:")
     # print(yaml.dump(config, default_flow_style=False))
 
@@ -42,7 +43,13 @@ def main():
     train_data_path = data_cfg['train_data_path']
     test_data_path = data_cfg['test_data_path']
     key_1, key_2 = data_cfg['key_1'], data_cfg['key_2']
-    train_dataset, test_dataset = data_prepare(train_data_path, test_data_path, key_1, key_2)
+    if args.to_gpu == 'False':
+        to_gpu = False
+    elif args.to_gpu == 'True':
+        to_gpu = True
+    else:
+        raise ValueError('Invalid value for to_gpu: {}'.format(args.to_gpu))
+    train_dataset, test_dataset = data_prepare(train_data_path, test_data_path, key_1, key_2, to_gpu)
     
     # === Model ===
     model_cfg = config['model']
@@ -76,7 +83,12 @@ def main():
         cross_recon_1=float(loss_cfg['cross_recon_1']),
         cross_recon_2=float(loss_cfg['cross_recon_2']),
         temperature=float(loss_cfg['temperature']),
-        trainable_clip_temperature=loss_cfg['trainable_clip_temperature']
+        trainable_clip_temperature=loss_cfg['trainable_clip_temperature'],
+        use_weight=loss_cfg['use_weight'],
+        top_k_ratio=loss_cfg['top_k_ratio'],
+        bottom_k_ratio=loss_cfg['bottom_k_ratio'],
+        weight_top=loss_cfg['weight_top'],
+        weight_bottom=loss_cfg['weight_bottom']
     )
     
     # === Optimizer ===

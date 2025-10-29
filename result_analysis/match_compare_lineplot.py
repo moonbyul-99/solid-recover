@@ -164,7 +164,7 @@ def line_plot_compare( run_dir, compare_dir, case_id, figure_id = None):
     save_figure = os.path.join('match_evaluation', f'LINE_case{figure_id}_match_evaluation.png')
     line_plot(sr_res, compare_df, save_figure)
     print('OVER')
-    return None
+    return sr_res, compare_df
 
 if __name__ == '__main__':
     # output_dir = '/home/rsun@ZHANGroup.local/solid-recover/outputs/pair_scratch_case1/eval_result'

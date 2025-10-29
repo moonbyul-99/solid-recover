@@ -19,7 +19,7 @@ def train_cobolt(train_data_path, test_data_path, save_dir):
 
     ## set model and train
 
-    model = Cobolt(dataset = multi_dt, lr = 1e-3, n_latent = 16)
+    model = Cobolt(dataset = multi_dt, lr = 1e-4, n_latent = 16, batch_size = 120)
     model.train(num_epochs = 200)
 
     ## get model training loss 
@@ -63,9 +63,9 @@ def train_cobolt(train_data_path, test_data_path, save_dir):
 
 if __name__ == '__main__':
 
-    train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_1/train_count.h5mu'
-    test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_1/test_count.h5mu'
-    save_dir = 'case_1'
+    # train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_1/train_count.h5mu'
+    # test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_1/test_count.h5mu'
+    # save_dir = 'case_1'
 
     # train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_4/train_count.h5mu'
     # test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_4/test_count.h5mu'
@@ -77,4 +77,16 @@ if __name__ == '__main__':
     # train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_3/train_count.h5mu'
     # test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_3/test_count.h5mu'
     # save_dir = 'case_3'
+
+    # train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_5/train_count.h5mu'
+    # test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_5/test_count.h5mu'
+    # save_dir = 'case_5'
+
+    # train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_6/train_count.h5mu'
+    # test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_6/test_count.h5mu'
+    # save_dir = 'case_6'
+
+    train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_8/train_count.h5mu'
+    test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_8/test_count.h5mu'
+    save_dir = 'case_8'
     train_cobolt(train_data_path ,test_data_path ,save_dir)

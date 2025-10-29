@@ -168,7 +168,20 @@ if __name__ == '__main__':
     # train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_2/train_count.h5mu'
     # test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_2/test_count.h5mu'
     # save_dir = 'case_2'
-    train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_3/train_count.h5mu'
-    test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_3/test_count.h5mu'
-    save_dir = 'case_3'
+    # train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_3/train_count.h5mu'
+    # test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_3/test_count.h5mu'
+    # save_dir = 'case_3'
+
+    # train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_5/train_count.h5mu'
+    # test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_5/test_count.h5mu'
+    # save_dir = 'case_5'
+
+
+    # train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_6/train_count.h5mu'
+    # test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_6/test_count.h5mu'
+    # save_dir = 'case_6'
+
+    train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_8/train_count.h5mu'
+    test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_8/test_count.h5mu'
+    save_dir = 'case_8'
     train_scb(train_data_path , test_data_path, save_dir)

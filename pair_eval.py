@@ -98,6 +98,9 @@ def single_model_evaluation(pair_model, ckpt_steps, output_dir, device = 'cpu'):
     device: cpu or 'cuda'
     '''
     eval_res_dir = os.path.join(output_dir, 'eval_result', f'{ckpt_steps}_result')
+    if os.path.exists(eval_res_dir):
+        print(f"结果目录已存在，跳过：{eval_res_dir}")
+        return True  # 或根据上下文改为 continue / exit(0) 等
     os.makedirs(eval_res_dir, exist_ok=True)
 
     ckpt_path = os.path.join(output_dir, 'models', 'ckpt_%s.pth'%ckpt_steps)
@@ -189,7 +192,7 @@ def single_model_whole_evaluation(output_dir):
         tmp = key.split('.')[0]
         tmp = tmp.split('_')[-1]
         ckpt_steps = int(tmp)
-        single_model_evaluation(pair_model, ckpt_steps, output_dir) 
+        single_model_evaluation(pair_model, ckpt_steps, output_dir)
     print('✅ Evaluation OVER')
     return None
 

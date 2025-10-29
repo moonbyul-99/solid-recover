@@ -275,8 +275,14 @@ class sr_pair_vae(nn.Module):
                  cross_recon_1: float = 0.2,
                  cross_recon_2: float = 0.2,
                  temperature: float = 0.07,
-                 trainable_clip_temperature: bool = False):
-        self.loss = VAE_clip_loss(vae_beta_1, vae_beta_2, clip_weight, cross_recon_1, cross_recon_2, temperature)
+                 trainable_clip_temperature: bool = False,
+                 use_weight = False,
+                 top_k_ratio = 0.1,
+                 bottom_k_ratio = 0.1,        
+                 weight_top = 0.0,
+                 weight_bottom = 2.0):
+        self.loss = VAE_clip_loss(vae_beta_1, vae_beta_2, clip_weight, cross_recon_1, cross_recon_2, temperature, 
+                                  use_weight, top_k_ratio, bottom_k_ratio, weight_top, weight_bottom)
         self.loss.clip_loss.logit_scale.requires_grad = trainable_clip_temperature
     
     def forward(self, x1, x2):

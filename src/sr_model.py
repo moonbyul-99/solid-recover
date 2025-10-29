@@ -55,6 +55,7 @@ class Base_sr(nn.Module):
         self.test_dataset = test_dataset
     
     def set_dataloader(self, batch_size: int = 128):
+        self.batch_size = batch_size
         self.train_loader = DataLoader(self.train_dataset, batch_size = batch_size, shuffle = True)
         self.test_loader = DataLoader(self.test_dataset, batch_size = batch_size, shuffle = False)
         return None
@@ -153,9 +154,18 @@ class Base_sr(nn.Module):
         self.model.to(device) 
 
         self.model.train()
-
-        for _ in range(epoch_num):
+        for _ in range(epoch_num):         
             for batch in tqdm(self.train_loader):
+
+                '''避免对比学习中最后一个batch中样本数目过少'''
+                if isinstance(batch, dict):
+                    current_batch_size = next(iter(batch.values())).size(0)
+                else:
+                    current_batch_size = None 
+
+                if current_batch_size is not None and current_batch_size <= 0.8*self.train_loader.batch_size:
+                    continue
+
                 outputs, loss_dic = self._process_and_calculate_loss(batch, device)
 
                 loss = loss_dic['loss']
@@ -182,7 +192,7 @@ class Base_sr(nn.Module):
                 if steps % save_points == 0:
                     ckpt_path = os.path.join(self.model_dir, f'ckpt_{steps}.pth')
                     torch.save({'model_state_dict': self.model.state_dict()}, ckpt_path)
-            if steps > train_steps:
+            if steps >= train_steps:
                 break 
 
         print('SR model training completed.')
@@ -554,8 +564,14 @@ class pair_sr_scratch(Base_sr):
                  cross_recon_1: float = 0.2,
                  cross_recon_2: float = 0.2,
                  temperature: float = 0.07,
-                 trainable_clip_temperature: bool = False):
-        self.model.set_loss(vae_beta_1, vae_beta_2, clip_weight, cross_recon_1, cross_recon_2, temperature, trainable_clip_temperature)
+                 trainable_clip_temperature: bool = False,
+                 use_weight = False,
+                 top_k_ratio = 0.1,
+                 bottom_k_ratio = 0.1,
+                 weight_top = 0.1,
+                 weight_bottom = 2.0):
+        self.model.set_loss(vae_beta_1, vae_beta_2, clip_weight, cross_recon_1, cross_recon_2, temperature, trainable_clip_temperature,
+                            use_weight, top_k_ratio, bottom_k_ratio, weight_top, weight_bottom)
 
         # self.loss = VAE_clip_loss(vae_beta_1, vae_beta_2, clip_weight, cross_recon_1, cross_recon_2, temperature)
         # self.loss.clip_loss.logit_scale.requires_grad = trainable_clip_temperature
@@ -563,6 +579,7 @@ class pair_sr_scratch(Base_sr):
     #     return self.loss(x1, x2, sr_pair_out)
     
     def _process_and_calculate_loss(self, batch, device):
+
         x1 = batch['omic_1'].to(device)
         x2 = batch['omic_2'].to(device)
         outputs, loss_dic = self.model(x1,x2)

@@ -67,4 +67,9 @@ class pair_data(Dataset):
     def __getitem__(self,idx):
         return {'omic_1': self.omic_1[idx,:],
                 'omic_2': self.omic_2[idx,:]}
+    
+    def to_gpu(self):
+        self.omic_1 = self.omic_1.to('cuda')
+        self.omic_2 = self.omic_2.to('cuda')
+    
 

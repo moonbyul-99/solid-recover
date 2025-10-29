@@ -80,9 +80,11 @@ def plot_loss(logger_path: str, save_dir = None):
 
 if __name__ == '__main__':
 
-    for i in range(1,5):
-        if i == 2:
+    for i in range(1,9):
+        if i == 7:
             continue
+        # if i == 2:
+        #     continue
         logger_path = f'case{i}.out'
         save_dir = f'case_{i}'
         plot_loss(logger_path, save_dir = save_dir)

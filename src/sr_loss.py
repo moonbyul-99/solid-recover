@@ -8,6 +8,8 @@ import torch.nn.functional as F
 import numpy as np
 from typing import List, Dict, Union, Any
 
+
+
 class CLIPLoss(nn.Module):
     """
     Implementation of the CLIP loss function.
@@ -34,6 +36,109 @@ class CLIPLoss(nn.Module):
         loss_21 = F.cross_entropy(logits_cell_2, ground_truth)
 
         return (loss_12 + loss_21) / 2 
+
+class WeightedCLIPLoss(nn.Module):
+    """
+    Numerically stable weighted CLIP loss for single-cell multi-omics.
+    Uses log-sum-exp trick to avoid overflow in exp(logits).
+    """
+    def __init__(
+        self,
+        temperature=0.07,
+        top_k_ratio=0.1,
+        bottom_k_ratio=0.1,
+        weight_top=0.1,      
+        weight_bottom=2.0    
+    ):
+        super(WeightedCLIPLoss, self).__init__()
+        self.logit_scale = nn.Parameter(torch.tensor([np.log(1.0 / temperature)]))
+        self.top_k_ratio = top_k_ratio
+        self.bottom_k_ratio = bottom_k_ratio
+        self.weight_top = weight_top
+        self.weight_bottom = weight_bottom
+
+        # Precompute log weights (constants)
+        self.log_weight_top = np.log(weight_top + 1e-8)
+        self.log_weight_bottom = np.log(weight_bottom + 1e-8)
+
+    def _compute_weighted_logsumexp(self, logits, W_log):
+        """
+        Compute log(sum_j exp(logits_ij) * W_ij) = logsumexp(logits_ij + log W_ij)
+        Args:
+            logits: (N, N)
+            W_log: (N, N), log of weights (use -inf for masked entries if needed)
+        Returns:
+            log_denom: (N,)
+        """
+        # Add log weights in log-space
+        weighted_logits = logits + W_log  # (N, N)
+        # Use logsumexp for numerical stability
+        log_denom = torch.logsumexp(weighted_logits, dim=1)  # (N,)
+        return log_denom
+
+    def forward(self, rna_emb, atac_emb):
+        device = rna_emb.device
+        N = rna_emb.size(0)
+
+        # L2 normalize
+        rna_emb = F.normalize(rna_emb, dim=-1)
+        atac_emb = F.normalize(atac_emb, dim=-1)
+
+        # Compute scaled logits
+        logits = rna_emb @ atac_emb.t()  # (N, N)
+        logit_scale = torch.exp(self.logit_scale)
+        logits = logit_scale * logits
+
+        # Initialize log-weight matrix: log(W_ij)
+        W_log = torch.zeros(N, N, device=device)
+
+        # For each row i, set log weights for j != i
+        for i in range(N):
+            # Mask diagonal temporarily for sorting
+            off_diag_mask = torch.ones(N, dtype=torch.bool, device=device)
+            off_diag_mask[i] = False
+            off_diag_logits = logits[i, off_diag_mask]  # (N-1,)
+
+            # Sort off-diagonal logits (descending)
+            sorted_vals, sorted_local_idx = torch.sort(off_diag_logits, descending=True)
+            global_idx = torch.arange(N, device=device)[off_diag_mask][sorted_local_idx]
+
+            num_off_diag = N - 1
+            k_top = max(1, int(self.top_k_ratio * num_off_diag))
+            k_bottom = max(1, int(self.bottom_k_ratio * num_off_diag))
+
+            # Initialize all off-diag log weights to 0 (i.e., weight=1)
+            row_log_weights = torch.zeros(N, device=device)
+
+            # Top-K%: ambiguous negatives → down-weight
+            top_global = global_idx[:k_top]
+            row_log_weights[top_global] = self.log_weight_top
+
+            # Bottom-K%: confident negatives → up-weight
+            bottom_global = global_idx[-k_bottom:]
+            row_log_weights[bottom_global] = self.log_weight_bottom
+
+            # Diagonal: weight = 1 → log(1) = 0
+            row_log_weights[i] = 0.0
+
+            W_log[i] = row_log_weights
+
+        # Compute log(numerator) = logits[i, i]
+        log_numer = logits.diag()  # (N,)
+
+        # Compute log(denominator) = log(sum_j w_ij * exp(logits_ij))
+        log_denom = self._compute_weighted_logsumexp(logits, W_log)  # (N,)
+
+        # Loss for rna -> atac
+        loss_rna2atac = -(log_numer - log_denom).mean()
+
+        # Repeat for atac -> rna (transpose)
+        W_log_t = W_log.t()
+        log_denom_t = self._compute_weighted_logsumexp(logits.t(), W_log_t)
+        log_numer_t = logits.diag()  # same diagonal
+        loss_atac2rna = -(log_numer_t - log_denom_t).mean()
+
+        return (loss_rna2atac + loss_atac2rna) / 2.0
 
 class recon_Loss(nn.Module):
     def __init__(self):
@@ -89,7 +194,12 @@ class VAE_clip_loss(nn.Module):
                  clip_weight: float = 1.0,
                  cross_recon_1: float = 0.2,
                  cross_recon_2: float = 0.2,
-                 temperature: float = 0.07,):
+                 temperature: float = 0.07,
+                 use_weight = False,
+                 top_k_ratio = 0.1,
+                 bottom_k_ratio = 0.1,        
+                 weight_top = 0.1,
+                 weight_bottom = 2.0):
         super().__init__()
         assert cross_recon_1 <= 1.0
         assert cross_recon_2 <= 1.0
@@ -102,7 +212,10 @@ class VAE_clip_loss(nn.Module):
         self.cross_recon_1 = cross_recon_1
         self.cross_recon_2 = cross_recon_2
         
-        self.clip_loss = CLIPLoss(temperature)
+        if not use_weight:
+            self.clip_loss = CLIPLoss(temperature)
+        else:
+            self.clip_loss = WeightedCLIPLoss(temperature, top_k_ratio, bottom_k_ratio, weight_top, weight_bottom)
         self.vae_loss_1 = VAE_loss(self.vae_beta_1)
         self.vae_loss_2 = VAE_loss(self.vae_beta_2)
         self.recon_loss = recon_Loss()

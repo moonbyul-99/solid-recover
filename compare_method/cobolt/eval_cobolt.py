@@ -7,6 +7,14 @@ import json
 import sys 
 sys.path.append('../../src')
 from metrics import *
+
+# def modified_get_latent(model):
+#     '''
+#     ori cobolt get_latent has a bug, when a dataloader return a batch with a single sample
+#     '''
+
+
+
 def eval(eval_dir):
 
     '''
@@ -57,5 +65,8 @@ def eval(eval_dir):
 if __name__ == '__main__':
     # eval_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/cobolt/case_2'
     # eval_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/cobolt/case_3'
-    eval_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/cobolt/case_4'
+    # eval_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/cobolt/case_4'
+    # eval_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/cobolt/case_5'
+    # eval_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/cobolt/case_6'
+    eval_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/cobolt/case_8'
     eval(eval_dir)  

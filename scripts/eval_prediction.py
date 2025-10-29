@@ -30,7 +30,7 @@ def load_config(config_path):
         config = yaml.safe_load(f)
     return config 
 
-def pred_pipe(config_path, ckpt_path, eval_dir):
+def pred_pipe(config_path, ckpt_path, eval_dir,save_result = False):
     os.makedirs(eval_dir, exist_ok=True)
 
     
@@ -92,12 +92,14 @@ def pred_pipe(config_path, ckpt_path, eval_dir):
     X = np.concatenate([x1, atac2rna], axis = 0)
     adata = ad.AnnData(X)
     adata.obs['label'] = ['ori_rna']*x1.shape[0] + ['pred_rna']*x1.shape[0]
-    adata.write_h5ad(os.path.join(eval_dir, 'rna_test.h5ad'))
+    if save_result:
+        adata.write_h5ad(os.path.join(eval_dir, 'rna_test.h5ad'))
 
     X = np.concatenate([x2, rna2atac], axis = 0)
     adata = ad.AnnData(X)
     adata.obs['label'] = ['ori_atac']*x1.shape[0] + ['pred_atac']*x1.shape[0]
-    adata.write_h5ad(os.path.join(eval_dir, 'atac_test.h5ad'))
+    if save_result:
+        adata.write_h5ad(os.path.join(eval_dir, 'atac_test.h5ad'))
 
     print('Pred pipe over')
 
