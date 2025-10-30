@@ -9,7 +9,7 @@
 # CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/pair_scratch_case6.yaml"
 # CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/pair_scratch_case8.yaml"
 # CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/pair_scratch_case2.yaml"
-CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/case4_wc.yaml"
+CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/case1_wc.yaml"
 TO_GPU=True
 
 # === 执行 Python 脚本 ===

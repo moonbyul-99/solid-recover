@@ -154,7 +154,8 @@ class Base_sr(nn.Module):
         self.model.to(device) 
 
         self.model.train()
-        for _ in range(epoch_num):         
+        for _ in range(epoch_num):   
+      
             for batch in tqdm(self.train_loader):
 
                 '''避免对比学习中最后一个batch中样本数目过少'''
@@ -192,7 +193,8 @@ class Base_sr(nn.Module):
                 if steps % save_points == 0:
                     ckpt_path = os.path.join(self.model_dir, f'ckpt_{steps}.pth')
                     torch.save({'model_state_dict': self.model.state_dict()}, ckpt_path)
-            if steps >= train_steps:
+                    
+            if steps > train_steps:
                 break 
 
         print('SR model training completed.')

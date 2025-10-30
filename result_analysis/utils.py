@@ -90,3 +90,79 @@ def compute_metric_chunked(method_name, method_dic, n_jobs=32, metric = 'auprc')
     final_result = [ap for chunk_res in results_list for ap in chunk_res]
     
     return final_result
+
+'''GET SR EMBED'''
+
+
+from torch.utils.data import DataLoader
+from tqdm import tqdm
+def get_sr_embed(pair_model, ckpt_path, device = 'cuda'):
+    dataloader = DataLoader(pair_model.test_dataset, batch_size = 128, shuffle = False) 
+    pair_model.load_model(ckpt_path)
+    model = pair_model.model
+    model.to(device)
+    model.eval()
+
+
+    rna_z_list = []
+    rna_mu_list = []
+    rna_embed_list = []
+    atac_z_list = []
+    atac_mu_list = []
+    atac_embed_list = []
+
+    for batch in dataloader:
+        rna = batch['omic_1']
+        atac = batch['omic_2']
+        rna = rna.to(device)
+        atac = atac.to(device)
+
+        outputs, loss_dic = model(rna,atac)
+
+
+        rna_z= outputs['x1']['z'].detach().cpu().numpy()
+        rna_mu = outputs['x1']['z_mu'].detach().cpu().numpy()
+        rna_embed = outputs['x1']['z_embed'].detach().cpu().numpy()
+
+        atac_z= outputs['x2']['z'].detach().cpu().numpy()
+        atac_mu = outputs['x2']['z_mu'].detach().cpu().numpy()
+        atac_embed = outputs['x2']['z_embed'].detach().cpu().numpy()
+
+        rna_z_list.append(rna_z)
+        rna_mu_list.append(rna_mu)
+        rna_embed_list.append(rna_embed)
+        atac_z_list.append(atac_z)
+        atac_mu_list.append(atac_mu)
+        atac_embed_list.append(atac_embed)
+
+    rna_z = np.concatenate(rna_z_list)
+    rna_mu = np.concatenate(rna_mu_list)
+    rna_embed = np.concatenate(rna_embed_list)
+    atac_z = np.concatenate(atac_z_list)
+    atac_mu = np.concatenate(atac_mu_list)
+    atac_embed = np.concatenate(atac_embed_list)
+
+    return {'rna_z': rna_z,
+            'rna_mu': rna_mu,
+            'rna_embed': rna_embed,
+            'atac_z': atac_z,
+            'atac_mu': atac_mu,
+            'atac_embed': atac_embed}
+
+
+'''
+same case different methods comparison
+'''
+
+
+# def same_case_sr_comparison()
+
+
+
+
+
+
+
+
+
+
