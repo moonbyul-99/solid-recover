@@ -9,8 +9,16 @@
 # CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/pair_scratch_case6.yaml"
 # CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/pair_scratch_case8.yaml"
 # CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/pair_scratch_case2.yaml"
-CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/case1_wc.yaml"
-TO_GPU=True
+# CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/case1_wc.yaml"
+# CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/case9_wc.yaml"
+# CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/case10_wc.yaml"
+CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/case8_wc.yaml"
+
+
+TO_GPU=True 
+# if True, move all data to GPU, this will accelerate training because do not need to move data to GPU every iteration, but will consume more GPU memory 
+# without effective training. if False, data 
+# 
 
 # === 执行 Python 脚本 ===
 echo "▶️  Starting training sr_pair scratch model with config: $CONFIG_PATH"

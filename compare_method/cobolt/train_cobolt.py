@@ -86,7 +86,15 @@ if __name__ == '__main__':
     # test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_6/test_count.h5mu'
     # save_dir = 'case_6'
 
-    train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_8/train_count.h5mu'
-    test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_8/test_count.h5mu'
-    save_dir = 'case_8'
+    # train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_8/train_count.h5mu'
+    # test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_8/test_count.h5mu'
+    # save_dir = 'case_8'
+
+    # train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_9/train_count.h5mu'
+    # test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_9/test_count.h5mu'
+    # save_dir = 'case_9'
+
+    train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_10/train_count.h5mu'
+    test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_10/test_count.h5mu'
+    save_dir = 'case_10'
     train_cobolt(train_data_path ,test_data_path ,save_dir)

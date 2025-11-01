@@ -17,6 +17,49 @@ from datetime import datetime
 import muon as mu 
 from mudata import MuData
 
+import anndata as ad
+import pandas as pd
+import re
+
+def sort_var_by_chrom_and_start(adata):
+    """
+    对 adata.var 按染色体顺序（chr1, chr2, ..., chrX, chrY）和 start 位置升序排序。
+    原地修改 adata。
+    """
+    # 1. 解析 index 为 (chrom, start, end)
+    def parse_peak(peak_str):
+        # 支持 'chr1:1000-2000' 或 '1:1000-2000' 等格式
+        match = re.match(r'^(?:chr)?([0-9XYM]+):(\d+)-(\d+)$', peak_str, re.IGNORECASE)
+        if not match:
+            raise ValueError(f"无法解析 peak 名称: {peak_str}")
+        chrom, start, end = match.groups()
+        return chrom, int(start), int(end)
+    
+    # 2. 创建排序用的 DataFrame
+    parsed = [parse_peak(idx) for idx in adata.var.index]
+    sort_df = pd.DataFrame(parsed, columns=['chrom', 'start', 'end'], index=adata.var.index)
+    
+    # 3. 定义染色体排序顺序
+    chrom_order = {}
+    for i in range(1, 23):
+        chrom_order[str(i)] = i
+    chrom_order['X'] = 23
+    chrom_order['Y'] = 24
+    chrom_order['M'] = 25  # 可选：线粒体
+    
+    # 处理可能的小写 'x', 'y', 'm'
+    sort_df['chrom'] = sort_df['chrom'].str.upper()
+    
+    # 转换 chrom 为排序数值，未知染色体放最后
+    sort_df['chrom_rank'] = sort_df['chrom'].map(chrom_order).fillna(999)
+    
+    # 4. 排序：先按 chrom_rank，再按 start
+    sort_df = sort_df.sort_values(['chrom_rank', 'start'])
+    
+    # 5. 重新索引 adata
+    adata._inplace_subset_var(sort_df.index)
+
+
 
 def load_data(train_data_path, test_data_path):
     '''
@@ -74,7 +117,7 @@ def load_data(train_data_path, test_data_path):
         normalize_total=True,
         log1p=True,
         use_hvg=True,
-        n_top_genes=3000,
+        n_top_genes=8000,
         save_data=False,
         file_path=None,
         logging_path=None
@@ -96,6 +139,9 @@ def load_data(train_data_path, test_data_path):
 
     ## scb chrom preprocess 
     print('Additional SCB atac preprocessing')
+
+    '''peak sort for scb only'''
+    sort_var_by_chrom_and_start(ATAC_data)
 
     chrom = []
     for ele in ATAC_data.var.index:

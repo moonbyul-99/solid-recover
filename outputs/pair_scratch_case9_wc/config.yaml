@@ -1,25 +1,25 @@
 # pair_config.yaml
 
 data:
-  train_data_path: "/home/rsun@ZHANGroup.local/solid-recover/data/case_8/train.h5mu"
-  test_data_path: "/home/rsun@ZHANGroup.local/solid-recover/data/case_8/test.h5mu"
+  train_data_path: "/home/rsun@ZHANGroup.local/solid-recover/data/case_9/train.h5mu"
+  test_data_path: "/home/rsun@ZHANGroup.local/solid-recover/data/case_9/test.h5mu"
   key_1: "rna_count"
   key_2: "peak_count"
   batch_size: 512
 
 model:
-  feature_num_1: 11817 # 在脚本中动态确定
-  feature_num_2: 65401 # 在脚本中动态确定
-  hidden_params_1: [1024,256]
-  hidden_params_2: [1024,256]
+  feature_num_1: 8082
+  feature_num_2: 67313
+  hidden_params_1: [512,  256]
+  hidden_params_2: [512,  256]
   embed_dim: 64
   use_rmsnorm: true
   use_residual: true
   dropout_p: 0.0
 
 training:
-  project_dir: "outputs/pair_scratch_case8_wc_new"
-  train_steps: 10000
+  project_dir: "outputs/pair_scratch_case9_wc"
+  train_steps: 8000
   eval_points: 160
   save_points: 500
   device: "cuda"
@@ -34,7 +34,7 @@ optimizer:
 loss:
   vae_beta_1: 1.0
   vae_beta_2: 1.0
-  clip_weight: 0.0
+  clip_weight: 40.0
   cross_recon_1: 0.4
   cross_recon_2: 0.4
   temperature: 0.07

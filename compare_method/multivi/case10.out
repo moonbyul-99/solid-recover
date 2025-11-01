@@ -1,0 +1,25 @@
+nohup: ignoring input
+Traceback (most recent call last):
+  File "/home/rsun@ZHANGroup.local/solid-recover/compare_method/multivi/train_mvi.py", line 146, in <module>
+    train_mvi(train_data_path , test_data_path, save_dir)
+  File "/home/rsun@ZHANGroup.local/solid-recover/compare_method/multivi/train_mvi.py", line 28, in train_mvi
+    adata_mvi = prepare_mvi_data(train_data_path, test_data_path)
+  File "/home/rsun@ZHANGroup.local/solid-recover/compare_method/multivi/load_data.py", line 111, in prepare_mvi_data
+    mdata = load_mdata(train_data_path, test_data_path)
+  File "/home/rsun@ZHANGroup.local/solid-recover/compare_method/multivi/load_data.py", line 32, in load_mdata
+    adata = ad.concat([train_mdata.mod[key], test_mdata.mod[key]])
+  File "/home/rsun@ZHANGroup.local/anaconda3/envs/snapatac/lib/python3.10/site-packages/anndata/_core/merge.py", line 1339, in concat
+    alt_annot = merge_dataframes(
+  File "/home/rsun@ZHANGroup.local/anaconda3/envs/snapatac/lib/python3.10/site-packages/anndata/_core/merge.py", line 1022, in merge_dataframes
+    dfs = [df.reindex(index=new_index) for df in dfs]
+  File "/home/rsun@ZHANGroup.local/anaconda3/envs/snapatac/lib/python3.10/site-packages/anndata/_core/merge.py", line 1022, in <listcomp>
+    dfs = [df.reindex(index=new_index) for df in dfs]
+  File "/home/rsun@ZHANGroup.local/anaconda3/envs/snapatac/lib/python3.10/site-packages/pandas/core/frame.py", line 5378, in reindex
+    return super().reindex(
+  File "/home/rsun@ZHANGroup.local/anaconda3/envs/snapatac/lib/python3.10/site-packages/pandas/core/generic.py", line 5610, in reindex
+    return self._reindex_axes(
+  File "/home/rsun@ZHANGroup.local/anaconda3/envs/snapatac/lib/python3.10/site-packages/pandas/core/generic.py", line 5633, in _reindex_axes
+    new_index, indexer = ax.reindex(
+  File "/home/rsun@ZHANGroup.local/anaconda3/envs/snapatac/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 4429, in reindex
+    raise ValueError("cannot reindex on an axis with duplicate labels")
+ValueError: cannot reindex on an axis with duplicate labels

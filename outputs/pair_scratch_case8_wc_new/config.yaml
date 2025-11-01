@@ -18,7 +18,7 @@ model:
   dropout_p: 0.0
 
 training:
-  project_dir: "outputs/pair_scratch_case8_noclip"
+  project_dir: "outputs/pair_scratch_case8_wc_new"
   train_steps: 10000
   eval_points: 160
   save_points: 500
@@ -35,12 +35,12 @@ loss:
   vae_beta_1: 1.0
   vae_beta_2: 1.0
   clip_weight: 0.0
-  cross_recon_1: 1.0
-  cross_recon_2: 1.0
+  cross_recon_1: 0.4
+  cross_recon_2: 0.4
   temperature: 0.07
   trainable_clip_temperature: False
-  use_weight: False
+  use_weight: True
   top_k_ratio: 0.1
   bottom_k_ratio: 0.1        
-  weight_top: 0.0
+  weight_top: 0.1
   weight_bottom: 2.0
