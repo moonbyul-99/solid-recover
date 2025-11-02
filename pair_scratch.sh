@@ -10,8 +10,9 @@
 # CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/pair_scratch_case8.yaml"
 # CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/pair_scratch_case2.yaml"
 # CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/case1_wc.yaml"
-# CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/case9_wc.yaml"
 # CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/case10_wc.yaml"
+# CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/case9_wc.yaml"
+# CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/case8_wc.yaml"
 CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/case8_wc.yaml"
 
 

@@ -58,5 +58,6 @@ if __name__ == '__main__':
     # eval_dir = 'case_5'
     # eval_dir = 'case_6'
     # eval_dir = 'case_8'
-    eval_dir = 'case_9'
+    # eval_dir = 'case_9'
+    eval_dir = 'case_10'
     eval_pipe(eval_dir)

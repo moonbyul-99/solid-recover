@@ -1,0 +1,26 @@
+------------------------------
+Train Parameters
+R_encoder_lr: 0.001
+A_encoder_lr: 0.001
+R_decoder_lr: 0.001
+A_decoder_lr: 0.001
+R_translator_lr: 0.001
+A_translator_lr: 0.001
+translator_lr: 0.001
+discriminator_lr: 0.005
+R2R_pretrain_epoch: 100
+A2A_pretrain_epoch: 100
+lock_encoder_and_decoder: False
+translator_epoch: 200
+patience: 50
+batch_size: 128
+r_loss: MSELoss()
+a_loss: BCELoss()
+d_loss: BCELoss()
+loss_weight: [1, 2, 1, 0.0025, 0.0002529596276434281, 0.0027529596276434283]
+seed: 19193
+kl_mean: True
+R_pretrain_kl_warmup: 50
+A_pretrain_kl_warmup: 50
+translation_kl_warmup: 50
+load_model: None

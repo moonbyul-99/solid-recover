@@ -34,9 +34,9 @@ optimizer:
 loss:
   vae_beta_1: 1.0
   vae_beta_2: 1.0
-  clip_weight: 0.0
-  cross_recon_1: 0.4
-  cross_recon_2: 0.4
+  clip_weight: 40.0
+  cross_recon_1: 0.8
+  cross_recon_2: 0.8
   temperature: 0.07
   trainable_clip_temperature: False
   use_weight: True

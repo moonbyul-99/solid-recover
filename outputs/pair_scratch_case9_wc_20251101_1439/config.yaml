@@ -18,7 +18,7 @@ model:
   dropout_p: 0.0
 
 training:
-  project_dir: "outputs/pair_scratch_case9_oriclip"
+  project_dir: "outputs/pair_scratch_case9_wc"
   train_steps: 8000
   eval_points: 160
   save_points: 500
@@ -39,7 +39,7 @@ loss:
   cross_recon_2: 0.4
   temperature: 0.12
   trainable_clip_temperature: False
-  use_weight: False
+  use_weight: True
   top_k_ratio: 0.1
   bottom_k_ratio: 0.1        
   weight_top: 0.1
