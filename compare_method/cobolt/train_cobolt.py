@@ -94,7 +94,9 @@ if __name__ == '__main__':
     # test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_9/test_count.h5mu'
     # save_dir = 'case_9'
 
-    train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_10/train_count.h5mu'
-    test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_10/test_count.h5mu'
-    save_dir = 'case_10'
+    case_id = 'case_11'
+    
+    train_data_path = f'/home/rsun@ZHANGroup.local/solid-recover/data/{case_id}/train_count.h5mu'
+    test_data_path = f'/home/rsun@ZHANGroup.local/solid-recover/data/{case_id}/test_count.h5mu'
+    save_dir = case_id
     train_cobolt(train_data_path ,test_data_path ,save_dir)

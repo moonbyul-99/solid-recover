@@ -4,8 +4,13 @@ import os
 import matplotlib.pyplot as plt
 import seaborn as sns
 import json 
-
-
+from sklearn.metrics import average_precision_score, roc_auc_score
+from scipy import sparse
+from joblib import Parallel, delayed
+from tqdm import tqdm
+import math
+from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 def ckpt_merge(run_dir):
 
@@ -23,10 +28,6 @@ def ckpt_merge(run_dir):
     return df 
 
 '''AUPRC calculatin'''
-from sklearn.metrics import average_precision_score, roc_auc_score
-import numpy as np
-from scipy import sparse
-
 def compute_metric_chunk(col_indices, X_true, X_pred, metric='auprc'):
     """
     对给定的列索引列表，逐列计算 average precision score。
@@ -51,10 +52,6 @@ def compute_metric_chunk(col_indices, X_true, X_pred, metric='auprc'):
             raise ValueError(f"Invalid metric: {metric}")
         results.append(ap)
     return results
-
-from joblib import Parallel, delayed
-from tqdm import tqdm
-import math
 
 def compute_metric_chunked(method_name, method_dic, n_jobs=32, metric = 'auprc'):
     """
@@ -92,10 +89,6 @@ def compute_metric_chunked(method_name, method_dic, n_jobs=32, metric = 'auprc')
     return final_result
 
 '''GET SR EMBED'''
-
-
-from torch.utils.data import DataLoader
-from tqdm import tqdm
 def get_sr_embed(pair_model, ckpt_path, device = 'cuda'):
     dataloader = DataLoader(pair_model.test_dataset, batch_size = 128, shuffle = False) 
     pair_model.load_model(ckpt_path)

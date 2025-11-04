@@ -9,30 +9,16 @@ import muon as mu
 from cobolt.utils import SingleData, MultiomicDataset
 from cobolt.model import Cobolt
 import sys 
-sys.path.append('compare_method/cobolt')
-from load_data import * 
-
-
-train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_8/train_count.h5mu'
-test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_8/test_count.h5mu'
-save_dir = 'case_8'
-
-multi_dt = load_multi_dt(train_data_path, test_data_path)   
-
-## set model and train
-
-model = Cobolt(dataset = multi_dt, lr = 1e-4, n_latent = 16)
-
-import torch
-model.model = torch.load('/home/rsun@ZHANGroup.local/solid-recover/compare_method/cobolt/case_8/model.pth', weights_only=False)
-model.epoch = 200
-
+# sys.path.append('compare_method/cobolt')
+from load_data import *
+import torch 
 from torch.utils.data import DataLoader, Subset, SubsetRandomSampler
 from scipy import sparse
 from typing import List
 from xgboost import XGBRegressor
 from tqdm import tqdm
-
+import anndata as ad 
+import os
 
 def collate_wrapper(batch, omic_combn):
     dataset = [x[1] for x in batch]
@@ -126,39 +112,50 @@ def modified_calc_all_latent(model, batch_size = 128,
     return model 
 
 
-model = modified_calc_all_latent(model, 100)
+case_id = 'case_10'
+train_data_path = f'/home/rsun@ZHANGroup.local/solid-recover/data/{case_id}/train_count.h5mu'
+test_data_path = f'/home/rsun@ZHANGroup.local/solid-recover/data/{case_id}/test_count.h5mu'
+model_ckpt = f'/home/rsun@ZHANGroup.local/solid-recover/compare_method/cobolt/{case_id}/model.pth'
+save_dir = f'/home/rsun@ZHANGroup.local/solid-recover/compare_method/cobolt/{case_id}'
+if __name__ == '__main__':
 
-import os 
+    'set cobolt data'
+    multi_dt = load_multi_dt(train_data_path, test_data_path)   
 
-# get rna embed and atac embed in test data
-test_atac_id = []
-test_rna_id = []
+    ## set model and train
 
-for ele in model.latent['barcode']:
-    if 'test_atac' in ele:
-        test_atac_id.append(True)
-    else:
-        test_atac_id.append(False)
-    if 'test_rna' in ele:
-        test_rna_id.append(True) 
-    else:
-        test_rna_id.append(False)
+    model = Cobolt(dataset = multi_dt, lr = 1e-4, n_latent = 16)
+    model.model = torch.load(model_ckpt, weights_only=False)
+    model.epoch = 200
+    model = modified_calc_all_latent(model, 100)
 
-atac_embed = model.latent['latent'][test_atac_id]
-rna_embed = model.latent['latent'][test_rna_id] 
+    # get rna embed and atac embed in test data
+    test_atac_id = []
+    test_rna_id = []
 
-N = rna_embed.shape[0]
-sc_test = ad.AnnData(X = np.random.randn(N*2, 10),)
+    for ele in model.latent['barcode']:
+        if 'test_atac' in ele:
+            test_atac_id.append(True)
+        else:
+            test_atac_id.append(False)
+        if 'test_rna' in ele:
+            test_rna_id.append(True) 
+        else:
+            test_rna_id.append(False)
 
-sc_test.obs.loc[:,'batch'] = ['rna']*N + ['atac']*N
-sc_test.obs.loc[:,'idx'] = np.concatenate([np.arange(N), np.arange(N)])
-sc_test.obsm['X_embed'] = np.concatenate([rna_embed, atac_embed])
-save_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/cobolt/case_8'
-sc_test.write_h5ad(os.path.join(save_dir, f'model_embed.h5ad'))
-print('Program Over')
+    atac_embed = model.latent['latent'][test_atac_id]
+    rna_embed = model.latent['latent'][test_rna_id] 
 
-import anndata as ad 
+    N = rna_embed.shape[0]
+    sc_test = ad.AnnData(X = np.random.randn(N*2, 10),)
 
-adata = ad.AnnData(X = model.latent['latent'])
-adata.obs.index = model.latent['barcode']
-adata.write(os.path.join(save_dir, 'cobolt_latent.h5ad'))
+    sc_test.obs.loc[:,'batch'] = ['rna']*N + ['atac']*N
+    sc_test.obs.loc[:,'idx'] = np.concatenate([np.arange(N), np.arange(N)])
+    sc_test.obsm['X_embed'] = np.concatenate([rna_embed, atac_embed])
+    
+    sc_test.write_h5ad(os.path.join(save_dir, f'model_embed.h5ad'))
+    print('Program Over')
+
+    adata = ad.AnnData(X = model.latent['latent'])
+    adata.obs.index = model.latent['barcode']
+    adata.write(os.path.join(save_dir, 'cobolt_latent.h5ad'))

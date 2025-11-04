@@ -13,8 +13,8 @@
 # CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/case10_wc.yaml"
 # CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/case9_wc.yaml"
 # CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/case8_wc.yaml"
-CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/case8_wc.yaml"
-
+# CONFIG_PATH="/home/rsun@ZHANGroup.local/solid-recover/configs/case8_wc.yaml"
+CONFIG_PATH='/home/rsun@ZHANGroup.local/solid-recover/configs/case11_wc.yaml'
 
 TO_GPU=True 
 # if True, move all data to GPU, this will accelerate training because do not need to move data to GPU every iteration, but will consume more GPU memory 

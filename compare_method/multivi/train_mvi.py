@@ -137,10 +137,17 @@ if __name__ == '__main__':
     # test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_9/test_count.h5mu'
     # save_dir = 'case_9'
 
+    # '''
+    # case 10 training 
+    # '''
+    # train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_10/train_count.h5mu'
+    # test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_10/test_count.h5mu'
+    # save_dir = 'case_10'
+
     '''
-    case 10 training 
+    case 11 training 
     '''
-    train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_10/train_count.h5mu'
-    test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_10/test_count.h5mu'
-    save_dir = 'case_10'
+    train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_11/train_count.h5mu'
+    test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_11/test_count.h5mu'
+    save_dir = 'case_11'
     train_mvi(train_data_path , test_data_path, save_dir)
