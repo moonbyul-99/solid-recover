@@ -226,7 +226,7 @@ class exp_vis:
         annotate_best(ax_main, df_bar_long, reverse_metric)
 
         # 调整主图样式
-        ax_main.set_title('Method Performance in Case 2', fontsize=16)
+        ax_main.set_title(f'Method Performance in {figure_id}', fontsize=16)
         ax_main.set_xlabel('Metric', fontsize=12)
         ax_main.set_ylabel('Value', fontsize=12)
         # 设置 Y 轴范围，为王冠预留空间

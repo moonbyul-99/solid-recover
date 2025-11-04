@@ -1,0 +1,35 @@
+nohup: ignoring input
+/home/rsun@ZHANGroup.local/anaconda3/envs/cobolt/lib/python3.10/site-packages/mudata/_core/mudata.py:1598: FutureWarning: From 0.4 .update() will not pull obs/var columns from individual modalities by default anymore. Set mudata.set_options(pull_on_update=False) to adopt the new behaviour, which will become the default. Use new pull_obs/pull_var and push_obs/push_var methods for more flexibility.
+  self._update_attr("var", axis=0, join_common=join_common)
+/home/rsun@ZHANGroup.local/anaconda3/envs/cobolt/lib/python3.10/site-packages/mudata/_core/mudata.py:1461: FutureWarning: From 0.4 .update() will not pull obs/var columns from individual modalities by default anymore. Set mudata.set_options(pull_on_update=False) to adopt the new behaviour, which will become the default. Use new pull_obs/pull_var and push_obs/push_var methods for more flexibility.
+  self._update_attr("obs", axis=1, join_common=join_common)
+/home/rsun@ZHANGroup.local/anaconda3/envs/cobolt/lib/python3.10/site-packages/mudata/_core/mudata.py:1598: FutureWarning: From 0.4 .update() will not pull obs/var columns from individual modalities by default anymore. Set mudata.set_options(pull_on_update=False) to adopt the new behaviour, which will become the default. Use new pull_obs/pull_var and push_obs/push_var methods for more flexibility.
+  self._update_attr("var", axis=0, join_common=join_common)
+/home/rsun@ZHANGroup.local/anaconda3/envs/cobolt/lib/python3.10/site-packages/mudata/_core/mudata.py:1461: FutureWarning: From 0.4 .update() will not pull obs/var columns from individual modalities by default anymore. Set mudata.set_options(pull_on_update=False) to adopt the new behaviour, which will become the default. Use new pull_obs/pull_var and push_obs/push_var methods for more flexibility.
+  self._update_attr("obs", axis=1, join_common=join_common)
+A MultiomicDataset object with 2 omics:
+- GeneExpr: 15788 features, 20000 cells, 2 batches.
+- ChromAccess: 78372 features, 20000 cells, 2 batches.
+Joint cells:
+- GeneExpr, ChromAccess: 16000 cells.
+  0%|          | 0/200 [00:00<?, ?it/s]  0%|          | 0/200 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/rsun@ZHANGroup.local/solid-recover/compare_method/cobolt/train_cobolt.py", line 102, in <module>
+    train_cobolt(train_data_path ,test_data_path ,save_dir)
+  File "/home/rsun@ZHANGroup.local/solid-recover/compare_method/cobolt/train_cobolt.py", line 23, in train_cobolt
+    model.train(num_epochs = 200)
+  File "/home/rsun@ZHANGroup.local/anaconda3/envs/cobolt/lib/python3.10/site-packages/cobolt/model/cobolt.py", line 125, in train
+    for x in dt_loader:
+  File "/home/rsun@ZHANGroup.local/anaconda3/envs/cobolt/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 734, in __next__
+    data = self._next_data()
+  File "/home/rsun@ZHANGroup.local/anaconda3/envs/cobolt/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 790, in _next_data
+    data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+  File "/home/rsun@ZHANGroup.local/anaconda3/envs/cobolt/lib/python3.10/site-packages/torch/utils/data/_utils/fetch.py", line 52, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/home/rsun@ZHANGroup.local/anaconda3/envs/cobolt/lib/python3.10/site-packages/torch/utils/data/_utils/fetch.py", line 52, in <listcomp>
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/home/rsun@ZHANGroup.local/anaconda3/envs/cobolt/lib/python3.10/site-packages/cobolt/utils/dataset.py", line 29, in __getitem__
+    dat = [self.dt[om]['counts'][self.barcode_in_om[om][b]] if self.barcode_in_om[om][b] is not None else None
+  File "/home/rsun@ZHANGroup.local/anaconda3/envs/cobolt/lib/python3.10/site-packages/cobolt/utils/dataset.py", line 29, in <listcomp>
+    dat = [self.dt[om]['counts'][self.barcode_in_om[om][b]] if self.barcode_in_om[om][b] is not None else None
+TypeError: 'coo_matrix' object is not subscriptable
