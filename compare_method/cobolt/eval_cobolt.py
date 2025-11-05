@@ -71,5 +71,6 @@ if __name__ == '__main__':
     # eval_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/cobolt/case_8'
     # eval_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/cobolt/case_9'
     # eval_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/cobolt/case_10'
-    eval_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/cobolt/case_11'
+    # eval_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/cobolt/case_11'
+    eval_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/cobolt/case_12'
     eval(eval_dir)  

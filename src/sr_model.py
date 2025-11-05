@@ -135,8 +135,9 @@ class Base_sr(nn.Module):
             self.writer.add_scalar(key, value/total_counts, eval_points)
 
     def load_model(self, checkpoint_path = None):
+        device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         if checkpoint_path is not None:
-            checkpoint = torch.load(checkpoint_path)
+            checkpoint = torch.load(checkpoint_path, map_location = device)
             self.model.load_state_dict(checkpoint['model_state_dict'])
 
     def train_model(self, 

@@ -112,7 +112,7 @@ def modified_calc_all_latent(model, batch_size = 128,
     return model 
 
 
-case_id = 'case_11'
+case_id = 'case_12'
 train_data_path = f'/home/rsun@ZHANGroup.local/solid-recover/data/{case_id}/train_count.h5mu'
 test_data_path = f'/home/rsun@ZHANGroup.local/solid-recover/data/{case_id}/test_count.h5mu'
 model_ckpt = f'/home/rsun@ZHANGroup.local/solid-recover/compare_method/cobolt/{case_id}/model.pth'

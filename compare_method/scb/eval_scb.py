@@ -65,5 +65,6 @@ if __name__ == '__main__':
     # eval_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/scb/case_8'
     # eval_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/scb/case_9'
     # eval_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/scb/case_10'
-    eval_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/scb/case_11'
+    # eval_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/scb/case_11'
+    eval_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/scb/case_12'
     eval_pipe(eval_dir)

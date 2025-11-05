@@ -181,5 +181,6 @@ if __name__ == '__main__':
     # eval_res_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/multivi/case_8'
     # eval_res_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/multivi/case_9'
     # eval_res_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/multivi/case_10'
-    eval_res_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/multivi/case_11'
+    # eval_res_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/multivi/case_11'
+    eval_res_dir = '/home/rsun@ZHANGroup.local/solid-recover/compare_method/multivi/case_12'
     mvi_eval(eval_res_dir)
