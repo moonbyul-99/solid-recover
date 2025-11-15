@@ -3,6 +3,7 @@
 *.ipynb
 *.h5mu
 *.pt
+*.h5
 notebook/
 data/
 configs/pair_scratch_old/
@@ -10,4 +11,5 @@ eval_result/
 evaluation/
 outs/
 runs/
+mus_database/
 

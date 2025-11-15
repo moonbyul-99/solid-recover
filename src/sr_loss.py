@@ -75,36 +75,79 @@ class WeightedCLIPLoss(nn.Module):
         # Use logsumexp for numerical stability
         log_denom = torch.logsumexp(weighted_logits, dim=1)  # (N,)
         return log_denom
+    # def _compute_weight_matrix(self, logits):
+    #     """
+    #     Compute log-weight matrix W_log based on logits.
+    #     For each row i, assign weights to off-diagonal entries based on their rank.
+    #     """
+    #     device = logits.device
+    #     N = logits.size(0)
+    #     W_log = torch.zeros(N, N, device=device)
+
+    #     for i in range(N):
+    #         off_diag_mask = torch.ones(N, dtype=torch.bool, device=device)
+    #         off_diag_mask[i] = False
+    #         off_diag_logits = logits[i, off_diag_mask]  # (N-1,)
+
+    #         sorted_vals, sorted_local_idx = torch.sort(off_diag_logits, descending=True)
+    #         global_idx = torch.arange(N, device=device)[off_diag_mask][sorted_local_idx]
+
+    #         num_off_diag = N - 1
+    #         k_top = max(1, int(self.top_k_ratio * num_off_diag))
+    #         k_bottom = max(1, int(self.bottom_k_ratio * num_off_diag))
+
+    #         row_log_weights = torch.zeros(N, device=device)
+    #         top_global = global_idx[:k_top]
+    #         bottom_global = global_idx[-k_bottom:]
+
+    #         row_log_weights[top_global] = self.log_weight_top
+    #         row_log_weights[bottom_global] = self.log_weight_bottom
+    #         row_log_weights[i] = 0.0  # diagonal
+
+    #         W_log[i] = row_log_weights
+
+    #     return W_log
+
     def _compute_weight_matrix(self, logits):
         """
-        Compute log-weight matrix W_log based on logits.
-        For each row i, assign weights to off-diagonal entries based on their rank.
+        Vectorized version: compute log-weight matrix W_log for all rows at once.
         """
         device = logits.device
         N = logits.size(0)
-        W_log = torch.zeros(N, N, device=device)
 
-        for i in range(N):
-            off_diag_mask = torch.ones(N, dtype=torch.bool, device=device)
-            off_diag_mask[i] = False
-            off_diag_logits = logits[i, off_diag_mask]  # (N-1,)
+        # Create a copy and mask out diagonal (set to -inf so they won't be in top/bottom)
+        logits_masked = logits.clone()
+        logits_masked.fill_diagonal_(-float('inf'))  # (N, N)
 
-            sorted_vals, sorted_local_idx = torch.sort(off_diag_logits, descending=True)
-            global_idx = torch.arange(N, device=device)[off_diag_mask][sorted_local_idx]
+        # Get sorted indices per row (descending)
+        # sorted_idx: (N, N-1) but we keep full (N, N) for simplicity; diagonal is last
+        _, sorted_idx = torch.sort(logits_masked, descending=True, dim=1)  # (N, N)
 
-            num_off_diag = N - 1
-            k_top = max(1, int(self.top_k_ratio * num_off_diag))
-            k_bottom = max(1, int(self.bottom_k_ratio * num_off_diag))
+        # Number of off-diagonal elements
+        num_off_diag = N - 1
+        k_top = max(1, int(self.top_k_ratio * num_off_diag))
+        k_bottom = max(1, int(self.bottom_k_ratio * num_off_diag))
 
-            row_log_weights = torch.zeros(N, device=device)
-            top_global = global_idx[:k_top]
-            bottom_global = global_idx[-k_bottom:]
+        # Initialize weight matrix in log space
+        W_log = torch.full((N, N), 0.0, device=device)  # default weight = 1 → log(1) = 0
 
-            row_log_weights[top_global] = self.log_weight_top
-            row_log_weights[bottom_global] = self.log_weight_bottom
-            row_log_weights[i] = 0.0  # diagonal
+        # For each row i, mark top-k and bottom-k (excluding diagonal)
+        # Top-k: first k_top indices in sorted_idx
+        top_indices = sorted_idx[:, :k_top]  # (N, k_top)
+        # Bottom-k: last k_bottom indices (but skip the very last if it's diagonal? not needed since diag=-inf)
+        bottom_indices = sorted_idx[:, -k_bottom:]  # (N, k_bottom)
 
-            W_log[i] = row_log_weights
+        # Use advanced indexing to assign weights
+        # Create row indices for broadcasting
+        row_indices = torch.arange(N, device=device).unsqueeze(1)  # (N, 1)
+
+        # Assign top weights
+        W_log[row_indices, top_indices] = self.log_weight_top
+        # Assign bottom weights
+        W_log[row_indices, bottom_indices] = self.log_weight_bottom
+
+        # Explicitly zero out diagonal (in case bottom includes it, though unlikely due to -inf)
+        W_log.fill_diagonal_(0.0)
 
         return W_log
 
@@ -135,109 +178,6 @@ class WeightedCLIPLoss(nn.Module):
         return (loss_rna2atac + loss_atac2rna) / 2.0
 
 
-# class WeightedCLIPLoss(nn.Module):  old version
-#     """
-#     Numerically stable weighted CLIP loss for single-cell multi-omics.
-#     Uses log-sum-exp trick to avoid overflow in exp(logits).
-#     """
-#     def __init__(
-#         self,
-#         temperature=0.07,
-#         top_k_ratio=0.1,
-#         bottom_k_ratio=0.1,
-#         weight_top=0.1,      
-#         weight_bottom=2.0    
-#     ):
-#         super(WeightedCLIPLoss, self).__init__()
-#         self.logit_scale = nn.Parameter(torch.tensor([np.log(1.0 / temperature)]))
-#         self.top_k_ratio = top_k_ratio
-#         self.bottom_k_ratio = bottom_k_ratio
-#         self.weight_top = weight_top
-#         self.weight_bottom = weight_bottom
-
-#         # Precompute log weights (constants)
-#         self.log_weight_top = np.log(weight_top + 1e-8)
-#         self.log_weight_bottom = np.log(weight_bottom + 1e-8)
-
-#     def _compute_weighted_logsumexp(self, logits, W_log):
-#         """
-#         Compute log(sum_j exp(logits_ij) * W_ij) = logsumexp(logits_ij + log W_ij)
-#         Args:
-#             logits: (N, N)
-#             W_log: (N, N), log of weights (use -inf for masked entries if needed)
-#         Returns:
-#             log_denom: (N,)
-#         """
-#         # Add log weights in log-space
-#         weighted_logits = logits + W_log  # (N, N)
-#         # Use logsumexp for numerical stability
-#         log_denom = torch.logsumexp(weighted_logits, dim=1)  # (N,)
-#         return log_denom
-
-
-#     def forward(self, rna_emb, atac_emb):
-#         device = rna_emb.device
-#         N = rna_emb.size(0)
-
-#         # L2 normalize
-#         rna_emb = F.normalize(rna_emb, dim=-1)
-#         atac_emb = F.normalize(atac_emb, dim=-1)
-
-#         # Compute scaled logits
-#         logits = rna_emb @ atac_emb.t()  # (N, N)
-#         logit_scale = torch.exp(self.logit_scale)
-#         logits = logit_scale * logits
-
-#         # Initialize log-weight matrix: log(W_ij)
-#         W_log = torch.zeros(N, N, device=device)
-
-#         # For each row i, set log weights for j != i
-#         for i in range(N):
-#             # Mask diagonal temporarily for sorting
-#             off_diag_mask = torch.ones(N, dtype=torch.bool, device=device)
-#             off_diag_mask[i] = False
-#             off_diag_logits = logits[i, off_diag_mask]  # (N-1,)
-
-#             # Sort off-diagonal logits (descending)
-#             sorted_vals, sorted_local_idx = torch.sort(off_diag_logits, descending=True)
-#             global_idx = torch.arange(N, device=device)[off_diag_mask][sorted_local_idx]
-
-#             num_off_diag = N - 1
-#             k_top = max(1, int(self.top_k_ratio * num_off_diag))
-#             k_bottom = max(1, int(self.bottom_k_ratio * num_off_diag))
-
-#             # Initialize all off-diag log weights to 0 (i.e., weight=1)
-#             row_log_weights = torch.zeros(N, device=device)
-
-#             # Top-K%: ambiguous negatives → down-weight
-#             top_global = global_idx[:k_top]
-#             row_log_weights[top_global] = self.log_weight_top
-
-#             # Bottom-K%: confident negatives → up-weight
-#             bottom_global = global_idx[-k_bottom:]
-#             row_log_weights[bottom_global] = self.log_weight_bottom
-
-#             # Diagonal: weight = 1 → log(1) = 0
-#             row_log_weights[i] = 0.0
-
-#             W_log[i] = row_log_weights
-
-#         # Compute log(numerator) = logits[i, i]
-#         log_numer = logits.diag()  # (N,)
-
-#         # Compute log(denominator) = log(sum_j w_ij * exp(logits_ij))
-#         log_denom = self._compute_weighted_logsumexp(logits, W_log)  # (N,)
-
-#         # Loss for rna -> atac
-#         loss_rna2atac = -(log_numer - log_denom).mean()
-
-#         # Repeat for atac -> rna (transpose)
-#         W_log_t = W_log.t()
-#         log_denom_t = self._compute_weighted_logsumexp(logits.t(), W_log_t)
-#         log_numer_t = logits.diag()  # same diagonal
-#         loss_atac2rna = -(log_numer_t - log_denom_t).mean()
-
-#         return (loss_rna2atac + loss_atac2rna) / 2.0
 
 class recon_Loss(nn.Module):
     def __init__(self):
@@ -354,54 +294,6 @@ class VAE_clip_loss(nn.Module):
                 'kl_loss_1': vae_loss_1['kl_loss'],
                 'kl_loss_2': vae_loss_2['kl_loss'],
                 'clip_loss': clip_loss,}
-
-
-def batch_kl_(mu1, logvar1, mu2, logvar2):
-    """
-    compute the KL divergence between two batches of Gaussian distributions.
-
-    Args:
-        mu1:      [B,D]
-        logvar1:  [B, D] 
-        mu2:      [B, D] 
-        logvar2:  [B, D] 
-
-    return :
-        kl_matrix: [B, B] —— kl_matrix[i, j] = KL(N(mu1[i], Sigma1[i]) || N(mu2[j], Sigma2[j]))
-    """
-    B, D = mu1.shape
-
-    # broadcast mu and logver 
-    mu1_expanded = mu1.unsqueeze(1)                    # [B, 1, D]
-    logvar1_expanded = logvar1.unsqueeze(1)            # [B, 1, D]
-
-    mu2_expanded = mu2.unsqueeze(0)                    # [1, B, D]
-    logvar2_expanded = logvar2.unsqueeze(0)            # [1, B, D]
-
-    var1 = logvar1_expanded.exp()  + 1e-8                    # diag(Sigma1), [B, 1, D]
-    var2 = logvar2_expanded.exp()  + 1e-8                    # diag(Sigma2), [1, B, D]
-
-    mu_diff = mu1_expanded - mu2_expanded             # [B, B, D]
-    # 1. trace(Sigma2^{-1} Sigma1) = sum_d (Sigma1_dd / Sigma2_dd)
-    trace_term = (var1 / var2).sum(dim=-1)  # [B, B]
-
-    # 2. (mu1 - mu2)^T Sigma2^{-1} (mu1 - mu2) = sum_d (diff_d^2 / var2_d)
-    mahalanobis_term = (mu_diff ** 2 / var2).sum(dim=-1)  # [B, B]
-
-    # 3. dimension term
-    D_tensor = torch.tensor(D, dtype=torch.float32, device=mu1.device)
-
-    # 4. log(det Sigma2 / det Sigma1) = log(prod Sigma2_dd) - log(prod Sigma1_dd)
-    #                                 = sum(log Sigma2_dd) - sum(log Sigma1_dd)
-    # 注意：log(var) = log(diag(Sigma))，所以 sum(log(var)) = log(det(Sigma))
-    logdet_ratio_term = (logvar2_expanded - logvar1_expanded).sum(dim=-1)  # [B, B]
-
-    # merge all terms
-    kl_matrix = 0.5 * (trace_term + mahalanobis_term - D_tensor + logdet_ratio_term)
-
-    return kl_matrix  # [B, B]
-
-# class CLIP_VAE(nn.Module):
 
 
         

@@ -17,7 +17,7 @@ model:
   vae_model: false
 
 training:
-  project_dir: "runs/ga_ae_residual_3"
+  project_dir: "outputs/ga_pretrain_musbrain"
   train_steps: 20000
   eval_points: 100
   save_points: 4000

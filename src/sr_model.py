@@ -214,17 +214,10 @@ class single_sr(Base_sr):
                  embed_dim: int,
                  use_rmsnorm = True,
                  use_residual = False, 
-                 dropout_p = 0.05,
-                 vae_model = True,):
+                 dropout_p = 0.05,):
         super().__init__()
-        if vae_model:
-            self.model = sr_vae(feature_num, hidden_params, embed_dim, use_rmsnorm, use_residual, dropout_p)
-            self.model_type = 'sr_vae'
 
-        else:
-            self.model = sr_ae(feature_num, hidden_params, embed_dim, use_rmsnorm, use_residual, dropout_p)
-            self.model_type = 'sr_ae'
-
+        self.model = sr_vae(feature_num, hidden_params, embed_dim, use_rmsnorm, use_residual, dropout_p)
         self.embed_dim = self.model.embed_dim
         self.classifiers = None
         self.labelencoders = None
@@ -258,29 +251,11 @@ class single_sr(Base_sr):
         return None 
 
     def set_loss(self,beta: float = 1.0):
-        if self.model_type == 'sr_vae':
-            self.loss = VAE_loss(kl_weight = beta)
-        else:
-            self.loss = AE_loss( kl_weight = beta)
-
-    def calculate_loss(self, outputs, x):
-        if self.model_type == 'sr_vae':
-            x_recon = outputs['x_recon']
-            z_mu = outputs['z_mu']
-            z_logvar = outputs['z_logvar']
-            loss_dic = self.loss(x_recon, x, z_mu, z_logvar)
-        
-        if self.model_type == 'sr_ae':
-            x_recon = outputs['x_recon']
-            loss_dic = self.loss(x_recon, x)
-        return loss_dic
-
+        self.model.set_loss(beta)
     def _process_and_calculate_loss(self, batch, device):
         feature = batch['feature'].to(device)
-        outputs = self.model(feature)
-        loss_dic = self.calculate_loss(outputs, feature)
+        outputs, loss_dic = self.model(feature)
         return outputs, loss_dic
-
     def get_embedding(self, adata: AnnData, embedding_keys: List[str] = ['z_embed'],  device: str = 'cuda', batch_size: int = 128,):
 
         '''
@@ -591,8 +566,138 @@ class pair_sr_scratch(Base_sr):
         # loss_dic['logit_scale'] = self.loss.clip_loss.logit_scale.item()
         return outputs, loss_dic
         
+class pair_sr_pretrain(pair_sr_scratch):
+
+    '''
+    Training solid recover model from pretrained single_sr model
+    '''
+
+    def __init__(self, 
+                 feature_num_1:int, 
+                 feature_num_2:int, 
+                 hidden_params_1: Union[Dict[str,int], List[int]],
+                 hidden_params_2: Union[Dict[str,int], List[int]],
+                 embed_dim:int,
+                 use_rmsnorm = True,
+                 use_residual = False, 
+                 dropout_p = 0.05,):
+        
+        super().__init__(
+            feature_num_1=feature_num_1,
+            feature_num_2=feature_num_2,
+            hidden_params_1=hidden_params_1,
+            hidden_params_2=hidden_params_2,
+            embed_dim=embed_dim,
+            use_rmsnorm=use_rmsnorm,
+            use_residual=use_residual,
+            dropout_p=dropout_p,
+        )
+
+        print('init pair_model') 
+        self.model = sr_pair_vae(feature_num_1, feature_num_2, hidden_params_1, hidden_params_2, embed_dim, use_rmsnorm, use_residual, dropout_p)
+    @staticmethod
+    def _load_partial_weights(model, ckpt_path_or_dict, verbose=True):
+        '''
+        加载部分权重
+
+        说明：
+        sr_pair_vae 允许两个模态的 sr_vae 拥有不同的 embed_dim, 在构建sr_pair_vae 时，会在encoder 部分添加额外的
+        '''
+        if isinstance(ckpt_path_or_dict, str):
+            ckpt = torch.load(ckpt_path_or_dict, map_location='cpu')
+        else:
+            ckpt = ckpt_path_or_dict
+
+        model_dict = model.state_dict()
+        filtered_ckpt = {
+            k: v for k, v in ckpt.items()
+            if k in model_dict and v.shape == model_dict[k].shape
+        }
+
+        if verbose:
+            print(f"[Partial Load] Loaded {len(filtered_ckpt)}/{len(model_dict)} layers from checkpoint.")
+            if len(filtered_ckpt) == 0:
+                print("⚠️  Warning: No matching keys found!")
+
+        model_dict.update(filtered_ckpt)
+        model.load_state_dict(model_dict, strict=False)
+        return len(filtered_ckpt)
+        
+    def load_pretrained_model(self, omic_1_ckpt: str, omic_2_ckpt: str):
+        device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
+        print('load omic 1 pretrained model')
+        checkpoint = torch.load(omic_1_ckpt, map_location = device)
+        self.model.model_1.load_state_dict(checkpoint['model_state_dict'])
+
+        print('load omic 2 pretrained model')
+        checkpoint = torch.load(omic_2_ckpt, map_location = device)
+        self.model.model_2.load_state_dict(checkpoint['model_state_dict'])
+
+    
 
 
+# class pair_sr_atlas(Base_sr):
+
+#     '''
+#     Training solid recover model from atlas scale single omic data and aligned using paired omics data
+#     '''
+
+#     def __init__(self, 
+#                  feature_num_1:int, 
+#                  feature_num_2:int, 
+#                  hidden_params_1: Union[Dict[str,int], List[int]],
+#                  hidden_params_2: Union[Dict[str,int], List[int]],
+#                  embed_dim: int,
+#                  use_rmsnorm = True,
+#                  use_residual = False, 
+#                  dropout_p = 0.05,):
+        
+
+#         super().__init__()
+        
+#         print('init omic 1 model')
+#         '''omic 1 model'''
+#         self.model_1 = sr_vae(feature_num = feature_num_1,
+#                               hidden_params= hidden_params_1,
+#                               embed_dim = embed_dim,
+#                               use_rmsnorm= use_rmsnorm, 
+#                               use_residual= use_residual, 
+#                               dropout_p= dropout_p)
+        
+#         print('init omic 2 model')
+#         '''omic 2 model'''
+#         self.model_2 = sr_vae(feature_num = feature_num_2,
+#                               hidden_params= hidden_params_2,
+#                               embed_dim = embed_dim,
+#                               use_rmsnorm= use_rmsnorm, 
+#                               use_residual= use_residual, 
+#                               dropout_p= dropout_p)
+        
+#     def set_atlas_dataset(self, train_dataset_1, test_dataset_1, train_dataset_2, test_dataset_2):
+#         self.train_dataset_1 = train_dataset_1
+#         self.test_dataset_1 = test_dataset_1
+#         self.train_dataset_2 = train_dataset_2
+#         self.test_dataset_2 = test_dataset_2
+
+#     def set_atlas_dataloader(self, batch_size_1: int = 1024, batch_size_2: int = 1024):
+#         self.batch_size_1 = batch_size_1
+
+#         self.train_loader_1 = DataLoader(self.train_dataset_1, batch_size=self.batch_size_1, shuffle=True)
+#         self.test_loader_1 = DataLoader(self.test_dataset_1, batch_size=self.batch_size_1, shuffle=False)
+
+#         self.train_loader_2 = DataLoader(self.train_dataset_2, batch_size=batch_size_2, shuffle=True)
+#         self.test_loader_2 = DataLoader(self.test_dataset_2, batch_size=batch_size_2, shuffle=False)
+
+#     def set_pretrain_loss(self, beta_1: float = 1.0, beta_2: float = 1.0):
+#         self.model_1.set_loss(beta_1)
+#         self.model_2.set_loss(beta_2)
+
+#     def _process_and_calculate_pretrain_loss(self, batch, device):
+#         feature = batch['feature'].to(device)
+#         outputs,loss_dic = self.model(feature)
+#         loss_dic = self.calculate_loss(outputs, feature)
+#         return outputs, loss_dic
 
         
         
@@ -613,14 +718,3 @@ class pair_sr_scratch(Base_sr):
 #         self.proj_2 = nn.Linear(embed_dim,d2)
 
 #     def forward
-
-                        
-
-
-
-
-                
-        
-    
-
-        

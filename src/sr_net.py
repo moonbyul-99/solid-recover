@@ -66,7 +66,8 @@ class feature_encoder(nn.Module):
 
         super().__init__() 
 
-        self.hidden_params = hidden_params
+    
+        self.hidden_params = hidden_params.copy()
         ## parse hidden_params 
 
         if isinstance(hidden_params, dict):
@@ -113,7 +114,7 @@ class feature_decoder(nn.Module):
 
         super().__init__() 
 
-        self.hidden_params = hidden_params
+        self.hidden_params = hidden_params.copy()
         ## parse hidden_params 
 
         if isinstance(hidden_params, dict):
@@ -161,7 +162,7 @@ class sr_vae(nn.Module):
 
         self.encoder = feature_encoder(feature_num, hidden_params, use_rmsnorm, use_residual, dropout_p)
 
-        self.hidden_dims = self.encoder.hidden_dims
+        self.hidden_dims = self.encoder.hidden_dims.copy()
 
         d0 = self.hidden_dims[-1]
         self.mu_proj = nn.Sequential(nn.Linear(d0, embed_dim), nn.RMSNorm(embed_dim))
@@ -173,6 +174,8 @@ class sr_vae(nn.Module):
         self.decoder = feature_decoder(feature_num, decoder_hidden_dims, use_rmsnorm, use_residual, dropout_p)
         self.embed_dim = embed_dim
 
+    def set_loss(self, beta: float = 1.0):
+        self.loss = VAE_loss(kl_weight=beta)
     def reparam(self, mu, logvar):
         eps = torch.randn_like(mu)
         std = torch.exp(0.5*logvar)
@@ -193,12 +196,14 @@ class sr_vae(nn.Module):
         # z_embed = self.reparam(z_mu, z_logvar)
         z, z_mu, z_logvar, z_embed = self.get_embedding(x)
         x_recon = self.decoder(z_embed)
+        loss_dic = self.loss(x_recon, x, z_mu, z_logvar)
 
-        return {'z_encoder': z, 
-                'z_mu': z_mu,
-                'z_logvar': z_logvar,
-                'z_embed': z_embed,
-                'x_recon': x_recon}
+        sr_vae_out = {'z_encoder': z, 
+                        'z_mu': z_mu,
+                        'z_logvar': z_logvar,
+                        'z_embed': z_embed,
+                        'x_recon': x_recon}
+        return sr_vae_out, loss_dic
 
 class sr_ae(nn.Module):
     """
@@ -215,7 +220,7 @@ class sr_ae(nn.Module):
 
         self.encoder = feature_encoder(feature_num, hidden_params, use_rmsnorm, use_residual, dropout_p)
 
-        self.hidden_dims = self.encoder.hidden_dims
+        self.hidden_dims = self.encoder.hidden_dims.copy()
 
         d0 = self.hidden_dims[-1]
         self.embed_proj = nn.Sequential(nn.Linear(d0, embed_dim), nn.RMSNorm(embed_dim))
@@ -281,6 +286,8 @@ class sr_pair_vae(nn.Module):
                  bottom_k_ratio = 0.1,        
                  weight_top = 0.0,
                  weight_bottom = 2.0):
+        self.model_1.set_loss(vae_beta_1)
+        self.model_2.set_loss(vae_beta_2)
         self.loss = VAE_clip_loss(vae_beta_1, vae_beta_2, clip_weight, cross_recon_1, cross_recon_2, temperature, 
                                   use_weight, top_k_ratio, bottom_k_ratio, weight_top, weight_bottom)
         self.loss.clip_loss.logit_scale.requires_grad = trainable_clip_temperature

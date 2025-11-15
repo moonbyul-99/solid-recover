@@ -34,9 +34,6 @@ def main():
 
     # Load and print the config.
     config = load_config(args.config)
-    # original_config = copy.deepcopy(config)
-    print("Loaded config:")
-    # print(yaml.dump(config, default_flow_style=False))
 
     # === prepare dataset ===
     data_cfg = config['data']
@@ -108,19 +105,6 @@ def main():
     import shutil
     config_copy_path = os.path.join(pair_model.project_dir, 'config.yaml')
     shutil.copyfile(args.config, config_copy_path)
-    # === Save the exact config used in this run ===
-    # config_save_path = os.path.join(pair_model.project_dir, 'config.yaml')
-    # # os.makedirs(pair_model.project_dir, exist_ok=True)  # 确保目录存在
-    # with open(config_save_path, 'w') as f:
-    #     yaml.safe_dump(
-    #         original_config,
-    #         f,
-    #         default_flow_style=True,
-    #         indent=2,
-    #         width=1000,
-    #         allow_unicode=True,
-    #         sort_keys=False
-    #     )
 
 
     # === Train ===
