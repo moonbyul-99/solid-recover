@@ -1,0 +1,46 @@
+# pair_config.yaml
+
+data:
+  train_data_path: "/home/rsun@ZHANGroup.local/solid-recover/data/case_14/train.h5mu"
+  test_data_path: "/home/rsun@ZHANGroup.local/solid-recover/data/case_14/test.h5mu"
+  key_1: "rna_count"
+  key_2: "peak_count"
+  batch_size: 512
+
+model:
+  feature_num_1: 10000 # 在脚本中动态确定
+  feature_num_2: 20000 # 在脚本中动态确定
+  hidden_params_1: [512,256]
+  hidden_params_2: [512,256]
+  embed_dim: 64
+  use_rmsnorm: true
+  use_residual: true
+  dropout_p: 0.0
+
+training:
+  project_dir: "outputs/pair_scratch_case14_ori"
+  train_steps: 3000
+  eval_points: 50
+  save_points: 300
+  device: "cuda"
+
+optimizer:
+  lr: 3e-4
+  warmup_steps: 100
+  steady_1_steps: 500
+  cosine_anneal_steps: 2000
+  min_lr: 3e-5
+
+loss:
+  vae_beta_1: 1.0
+  vae_beta_2: 1.0
+  clip_weight: 20.0
+  cross_recon_1: 0.4
+  cross_recon_2: 0.4
+  temperature: 0.12
+  trainable_clip_temperature: False
+  use_weight: False
+  top_k_ratio: 0.1
+  bottom_k_ratio: 0.1        
+  weight_top: 0.1
+  weight_bottom: 4.0

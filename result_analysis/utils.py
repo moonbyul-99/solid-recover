@@ -89,8 +89,11 @@ def compute_metric_chunked(method_name, method_dic, n_jobs=32, metric = 'auprc')
     return final_result
 
 '''GET SR EMBED'''
-def get_sr_embed(pair_model, ckpt_path, device = 'cuda'):
-    dataloader = DataLoader(pair_model.test_dataset, batch_size = 128, shuffle = False) 
+def get_sr_embed(pair_model, ckpt_path, device = 'cuda', dataset = 'test'):
+    if dataset == 'test':
+        dataloader = DataLoader(pair_model.test_dataset, batch_size = 128, shuffle = False) 
+    else:
+        dataloader = DataLoader(pair_model.train_dataset, batch_size = 128, shuffle = False)
     pair_model.load_model(ckpt_path)
     model = pair_model.model
     model.to(device)
@@ -141,6 +144,8 @@ def get_sr_embed(pair_model, ckpt_path, device = 'cuda'):
             'atac_z': atac_z,
             'atac_mu': atac_mu,
             'atac_embed': atac_embed}
+
+
 
 
 '''
