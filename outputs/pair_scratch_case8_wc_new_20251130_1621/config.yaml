@@ -10,11 +10,11 @@ data:
 model:
   feature_num_1: 11817 # 在脚本中动态确定
   feature_num_2: 65401 # 在脚本中动态确定
-  hidden_params_1: [256,64]
-  hidden_params_2: [256,64]
+  hidden_params_1: [256]
+  hidden_params_2: [256]
   embed_dim: 64
   use_rmsnorm: true
-  use_residual: false
+  use_residual: true
   dropout_p: 0.0
 
 training:
@@ -42,5 +42,5 @@ loss:
   use_weight: True
   top_k_ratio: 0.1
   bottom_k_ratio: 0.1        
-  weight_top: 0.1
+  weight_top: 0.0
   weight_bottom: 2.0

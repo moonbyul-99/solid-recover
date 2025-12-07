@@ -1,8 +1,8 @@
 # pair_config.yaml
 
 data:
-  train_data_path: "D:/Users/rsun/solid-recover/data/case_8/train.h5mu"
-  test_data_path: "D:/Users/rsun/solid-recover/data/case_8/test.h5mu"
+  train_data_path: "/home/rsun@ZHANGroup.local/solid-recover/data/case_8/train.h5mu"
+  test_data_path: "/home/rsun@ZHANGroup.local/solid-recover/data/case_8/test.h5mu"
   key_1: "rna_count"
   key_2: "peak_count"
   batch_size: 512
