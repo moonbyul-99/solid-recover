@@ -69,6 +69,7 @@ class exp_vis:
         plt.tight_layout()
         plt.savefig(f'{self.save_dir}/ablation_sr_{figure_id}.png', dpi=300, bbox_inches='tight')
         plt.show()
+        return sr_res_dict
 
     def lineplot_compare( self, run_dir, case_id, compare_dir, figure_id = None):
         '''
