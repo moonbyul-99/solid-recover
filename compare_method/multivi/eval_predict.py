@@ -83,7 +83,7 @@ def pipe(train_data_path, test_data_path, save_dir):
 
 
 if __name__ == '__main__':
-    for i in range(1,5):
+    for i in [8,9,11,12]:
         train_data_path = f'/home/rsun@ZHANGroup.local/solid-recover/data/case_{i}/train_count.h5mu'
         test_data_path = f'/home/rsun@ZHANGroup.local/solid-recover/data/case_{i}/test_count.h5mu'
         save_dir = f'/home/rsun@ZHANGroup.local/solid-recover/compare_method/multivi/case_{i}'

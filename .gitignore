@@ -13,4 +13,5 @@ outs/
 runs/
 mus_database/
 compare_method/**/*.csv
+pred_evaluation/
 

@@ -116,7 +116,7 @@ def load_data(train_data_path, test_data_path):
         rna,
         normalize_total=True,
         log1p=True,
-        use_hvg=True,
+        use_hvg=False,
         n_top_genes=8000,
         save_data=False,
         file_path=None,
@@ -128,7 +128,7 @@ def load_data(train_data_path, test_data_path):
     ATAC_data = ATAC_data_preprocessing(
         atac,
         binary_data=True,
-        filter_features=True,
+        filter_features=False,
         fpeaks=0.005,
         tfidf=False,  #TIME CONSUMING, VERY LOW EFFICENCY IMPLEMENTATION
         normalize=True,

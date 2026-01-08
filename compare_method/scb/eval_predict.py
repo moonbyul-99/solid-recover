@@ -46,7 +46,7 @@ def pipe(train_data_path, test_data_path, save_dir, batch_size = 128, device = '
     '''
     set model
     '''
-    RNA_input_dim = len([i for i in RNA_data.var['highly_variable'] if i])
+    RNA_input_dim = RNA_data.X.shape[1]#len([i for i in RNA_data.var['highly_variable'] if i])
     ATAC_input_dim = ATAC_data.X.shape[1]
 
     R_kl_div = 1 / RNA_input_dim * 20
@@ -167,9 +167,10 @@ def pipe(train_data_path, test_data_path, save_dir, batch_size = 128, device = '
 #     corrs = pearson_corr_columns_scipy(rna_pred.X, rna_raw.X)
 
 if __name__ == '__main__':
-    for i in range(1,5):
+    for i in [8,12]:#[8,9,11,12]:
         train_data_path = f'/home/rsun@ZHANGroup.local/solid-recover/data/case_{i}/train_count.h5mu'
         test_data_path = f'/home/rsun@ZHANGroup.local/solid-recover/data/case_{i}/test_count.h5mu'
-        save_dir = f'/home/rsun@ZHANGroup.local/solid-recover/compare_method/scb/case_{i}'
+        #save_dir = f'/home/rsun@ZHANGroup.local/solid-recover/compare_method/scb/case_{i}'
+        save_dir = f'/home/rsun@ZHANGroup.local/solid-recover/compare_method/scb/case_{i}_new'
         pipe(train_data_path, test_data_path, save_dir, batch_size = 128, device = 'cuda', save = True)
         print(f'CASE{i} DONE')

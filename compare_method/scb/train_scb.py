@@ -29,7 +29,7 @@ def train_scb(train_data_path, test_data_path, save_dir):
     '''
     set model
     '''
-    RNA_input_dim = len([i for i in RNA_data.var['highly_variable'] if i])
+    RNA_input_dim = RNA_data.X.shape[1]#len([i for i in RNA_data.var['highly_variable'] if i])
     ATAC_input_dim = ATAC_data.X.shape[1]
 
     R_kl_div = 1 / RNA_input_dim * 20
@@ -183,7 +183,7 @@ if __name__ == '__main__':
 
     # train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_8/train_count.h5mu'
     # test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_8/test_count.h5mu'
-    # save_dir = 'case_8'
+    # save_dir = 'case_8_new'
 
     # train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_9/train_count.h5mu'
     # test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_9/test_count.h5mu'
@@ -196,9 +196,9 @@ if __name__ == '__main__':
 
     # train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_11/train_count.h5mu'
     # test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_11/test_count.h5mu'
-    # save_dir = 'case_11'
+    # save_dir = 'case_11_new'
 
     train_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_12/train_count.h5mu'
     test_data_path = '/home/rsun@ZHANGroup.local/solid-recover/data/case_12/test_count.h5mu'
-    save_dir = 'case_12'
+    save_dir = 'case_12_new'
     train_scb(train_data_path , test_data_path, save_dir)
