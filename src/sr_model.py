@@ -39,9 +39,23 @@ class Base_sr(nn.Module):
             if isinstance(X, torch.Tensor):
                 return X.float()  # ensure float32
 
+            # # Case 2: scipy sparse matrix
+            # if sparse.issparse(X):
+            #     X = X.toarray()  # convert to dense numpy array
             # Case 2: scipy sparse matrix
             if sparse.issparse(X):
-                X = X.toarray()  # convert to dense numpy array
+                chunk_size = 1000
+                if not sparse.isspmatrix_csr(X):
+                    X = X.tocsr()  # ensure CSR format for efficient row slicing
+
+                n_rows = X.shape[0]
+                chunks = []
+                # Use tqdm to show progress
+                for start in tqdm(range(0, n_rows, chunk_size), desc="Converting sparse matrix to dense"):
+                    end = min(start + chunk_size, n_rows)
+                    chunk_dense = X[start:end].toarray()  # convert current block to dense
+                    chunks.append(chunk_dense)
+                X = np.concatenate(chunks, axis=0)
 
             # Case 3: numpy.ndarray (most common)
             if isinstance(X, np.ndarray):

@@ -1,0 +1,50 @@
+# pair_config.yaml
+
+data:
+  train_data_path: "/home/rsun@ZHANGroup.local/solid-recover/data/case_15/train.h5mu"
+  test_data_path: "/home/rsun@ZHANGroup.local/solid-recover/data/case_15/test.h5mu"
+  key_1: "rna_count"
+  key_2: "ga_count"
+  batch_size: 1024
+
+model:
+  feature_num_1: 32285 # 在脚本中动态确定
+  feature_num_2: 31899 # 在脚本中动态确定
+  hidden_params_1: [1024, 512, 256]  
+  hidden_params_2: [1024, 512, 256]  
+  embed_dim: 256
+  use_rmsnorm: true
+  use_residual: true
+  dropout_p: 0.0
+
+ckpt:
+  omic_1: '/home/rsun@ZHANGroup.local/solid-recover/outputs/rna_pretrain_musbrain/models/ckpt_20001.pth'
+  omic_2: '/home/rsun@ZHANGroup.local/solid-recover/outputs/ga_pretrain_musbrain/models/ckpt_20001.pth'
+
+training:
+  project_dir: "outputs/pair_align_case15"
+  train_steps: 12000
+  eval_points: 100
+  save_points: 500
+  device: "cuda"
+
+optimizer:
+  lr: 3e-4
+  warmup_steps: 6000
+  steady_1_steps: 1000
+  cosine_anneal_steps: 3000
+  min_lr: 1e-5
+
+loss:
+  vae_beta_1: 1.0
+  vae_beta_2: 1.0
+  clip_weight: 40.0
+  cross_recon_1: 0.8
+  cross_recon_2: 0.8
+  temperature: 0.12
+  trainable_clip_temperature: False
+  use_weight: True
+  top_k_ratio: 0.1
+  bottom_k_ratio: 0.1        
+  weight_top: 0.1
+  weight_bottom: 2.0
