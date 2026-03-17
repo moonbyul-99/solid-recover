@@ -70,6 +70,7 @@ class Base_sr(nn.Module):
     
     def set_dataloader(self, batch_size: int = 128):
         self.batch_size = batch_size
+
         self.train_loader = DataLoader(self.train_dataset, batch_size = batch_size, shuffle = True)
         self.test_loader = DataLoader(self.test_dataset, batch_size = batch_size, shuffle = False)
         return None

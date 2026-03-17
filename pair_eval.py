@@ -51,7 +51,7 @@ def prepare_evaluation(output_dir):
     train_data_path = data_cfg['train_data_path']
     test_data_path = data_cfg['test_data_path']
     key_1, key_2 = data_cfg['key_1'], data_cfg['key_2']
-    train_dataset, test_dataset = data_prepare(train_data_path, test_data_path, key_1, key_2)
+    train_dataset, test_dataset = data_prepare(train_data_path, test_data_path, key_1, key_2, eval_mode = True)
 
     # === Model ===
     model_cfg = config['model']

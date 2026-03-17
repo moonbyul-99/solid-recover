@@ -1,168 +1,0 @@
-nohup: ignoring input
-▶️  Starting evaluation with config: /home/rsun@ZHANGroup.local/solid-recover/configs/pair_scratch_case3.yaml
-    Model dir: /home/rsun@ZHANGroup.local/solid-recover/runs/pair_scratch_case3_20250922_0829/models
-    Output dir: /home/rsun@ZHANGroup.local/solid-recover/eval_result/pair_scratch_case3_20250922_0829
-/home/rsun@ZHANGroup.local/anaconda3/envs/snapatac/lib/python3.10/site-packages/mudata/_core/mudata.py:1531: FutureWarning: From 0.4 .update() will not pull obs/var columns from individual modalities by default anymore. Set mudata.set_options(pull_on_update=False) to adopt the new behaviour, which will become the default. Use new pull_obs/pull_var and push_obs/push_var methods for more flexibility.
-  self._update_attr("var", axis=0, join_common=join_common)
-/home/rsun@ZHANGroup.local/anaconda3/envs/snapatac/lib/python3.10/site-packages/mudata/_core/mudata.py:931: UserWarning: Cannot join columns with the same name because var_names are intersecting.
-  warnings.warn(
-/home/rsun@ZHANGroup.local/anaconda3/envs/snapatac/lib/python3.10/site-packages/mudata/_core/mudata.py:1429: FutureWarning: From 0.4 .update() will not pull obs/var columns from individual modalities by default anymore. Set mudata.set_options(pull_on_update=False) to adopt the new behaviour, which will become the default. Use new pull_obs/pull_var and push_obs/push_var methods for more flexibility.
-  self._update_attr("obs", axis=1, join_common=join_common)
-Loaded config:
-data:
-  batch_size: 512
-  data_path: /home/rsun@ZHANGroup.local/sr_project/eval_data/merge_dataset/mdata.h5mu
-  key_1: rna_count
-  key_2: peak_count
-  test_split_path: /home/rsun@ZHANGroup.local/sr_project/eval_data/data_split/test_id_3.npy
-  train_split_path: /home/rsun@ZHANGroup.local/sr_project/eval_data/data_split/train_id_3.npy
-loss:
-  clip_weight: 40.0
-  cross_recon_1: 0.4
-  cross_recon_2: 0.4
-  temperature: 0.07
-  vae_beta_1: 1.0
-  vae_beta_2: 1.0
-model:
-  clip_temperature: 0.07
-  dropout_p: 0.0
-  embed_dim: 128
-  feature_num_1: null
-  feature_num_2: null
-  hidden_params_1:
-  - 1024
-  - 512
-  - 256
-  hidden_params_2:
-  - 1024
-  - 512
-  - 256
-  use_residual: true
-  use_rmsnorm: true
-optimizer:
-  cosine_anneal_steps: 6000
-  lr: 1e-3
-  min_lr: 1e-4
-  steady_1_steps: 1600
-  warmup_steps: 1000
-training:
-  device: cuda
-  eval_points: 80
-  project_dir: runs/pair_scratch_case3
-  save_points: 500
-  train_steps: 10000
-
-train size: 70997, test size: 7889
-data 1 shape (78886, 32285)
-data 1 shape after qc (78886, 14378)
-data 1 shape (78886, 608869)
-data 1 shape after qc (78886, 141343)
-  0%|          | 0/15 [00:00<?, ?it/s]/home/rsun@ZHANGroup.local/solid-recover/src/sr_model.py:136: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  checkpoint = torch.load(checkpoint_path)
-  7%|▋         | 1/15 [01:24<19:38, 84.20s/it]/home/rsun@ZHANGroup.local/solid-recover/src/sr_model.py:136: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  checkpoint = torch.load(checkpoint_path)
- 13%|█▎        | 2/15 [02:13<13:48, 63.74s/it]/home/rsun@ZHANGroup.local/solid-recover/src/sr_model.py:136: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  checkpoint = torch.load(checkpoint_path)
- 20%|██        | 3/15 [03:03<11:28, 57.34s/it]/home/rsun@ZHANGroup.local/solid-recover/src/sr_model.py:136: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  checkpoint = torch.load(checkpoint_path)
- 27%|██▋       | 4/15 [03:53<09:57, 54.33s/it]/home/rsun@ZHANGroup.local/solid-recover/src/sr_model.py:136: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  checkpoint = torch.load(checkpoint_path)
- 33%|███▎      | 5/15 [04:38<08:32, 51.21s/it]/home/rsun@ZHANGroup.local/solid-recover/src/sr_model.py:136: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  checkpoint = torch.load(checkpoint_path)
- 40%|████      | 6/15 [05:25<07:26, 49.61s/it]/home/rsun@ZHANGroup.local/solid-recover/src/sr_model.py:136: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  checkpoint = torch.load(checkpoint_path)
- 47%|████▋     | 7/15 [06:12<06:30, 48.83s/it]/home/rsun@ZHANGroup.local/solid-recover/src/sr_model.py:136: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  checkpoint = torch.load(checkpoint_path)
- 53%|█████▎    | 8/15 [07:01<05:41, 48.81s/it]/home/rsun@ZHANGroup.local/solid-recover/src/sr_model.py:136: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  checkpoint = torch.load(checkpoint_path)
- 60%|██████    | 9/15 [07:48<04:50, 48.48s/it]/home/rsun@ZHANGroup.local/solid-recover/src/sr_model.py:136: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  checkpoint = torch.load(checkpoint_path)
- 67%|██████▋   | 10/15 [08:36<04:00, 48.13s/it]/home/rsun@ZHANGroup.local/solid-recover/src/sr_model.py:136: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  checkpoint = torch.load(checkpoint_path)
- 73%|███████▎  | 11/15 [09:25<03:13, 48.37s/it]/home/rsun@ZHANGroup.local/solid-recover/src/sr_model.py:136: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  checkpoint = torch.load(checkpoint_path)
- 80%|████████  | 12/15 [10:14<02:25, 48.64s/it]/home/rsun@ZHANGroup.local/solid-recover/src/sr_model.py:136: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  checkpoint = torch.load(checkpoint_path)
- 87%|████████▋ | 13/15 [11:00<01:35, 47.71s/it]/home/rsun@ZHANGroup.local/solid-recover/src/sr_model.py:136: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  checkpoint = torch.load(checkpoint_path)
- 93%|█████████▎| 14/15 [11:44<00:46, 46.61s/it]/home/rsun@ZHANGroup.local/solid-recover/src/sr_model.py:136: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  checkpoint = torch.load(checkpoint_path)
-100%|██████████| 15/15 [12:29<00:00, 46.21s/it]100%|██████████| 15/15 [12:29<00:00, 49.96s/it]
-{'top_1_hit': 0.054633033337558624, 'top_5_hit': 0.17156800608442135, 'top_10_hit': 0.24946127519330713, 'top_15_hit': 0.302002788693117, 'top_20_hit': 0.3447204968944099, 'top_30_hit': 0.406008366079351, 'top_50_hit': 0.4905564710356192, 'top_100_hit': 0.6111040689567753, 'acc': 0.15654709935188293, 'mathscore': 0.1619977205991745, 'foscttm': 0.012641991022974253}
-{'top_1_hit': 0.07092153631638991, 'top_5_hit': 0.19571555330206616, 'top_10_hit': 0.27975662314615285, 'top_15_hit': 0.3381290404360502, 'top_20_hit': 0.38021295474711625, 'top_30_hit': 0.4409937888198758, 'top_50_hit': 0.5173025732031943, 'top_100_hit': 0.6211180124223602, 'acc': 0.15781468152999878, 'mathscore': 0.16465964913368225, 'foscttm': 0.014875638298690319}
-{'top_1_hit': 0.07447078210166054, 'top_5_hit': 0.20002535175560907, 'top_10_hit': 0.27975662314615285, 'top_15_hit': 0.33527696793002915, 'top_20_hit': 0.37698060590695903, 'top_30_hit': 0.4340220560273799, 'top_50_hit': 0.5106477373558119, 'top_100_hit': 0.616681455190772, 'acc': 0.15312460064888, 'mathscore': 0.1637723445892334, 'foscttm': 0.016944045200943947}
-{'top_1_hit': 0.08137913550513373, 'top_5_hit': 0.204335150209152, 'top_10_hit': 0.28755228799594373, 'top_15_hit': 0.33977690455064014, 'top_20_hit': 0.37774115857523133, 'top_30_hit': 0.43795157814678665, 'top_50_hit': 0.5127392571935606, 'top_100_hit': 0.6173786284700216, 'acc': 0.1541386842727661, 'mathscore': 0.1641526222229004, 'foscttm': 0.018600279465317726}
-{'top_1_hit': 0.07599188743820509, 'top_5_hit': 0.2036379769299024, 'top_10_hit': 0.28634807960451264, 'top_15_hit': 0.3424388388895931, 'top_20_hit': 0.3848396501457726, 'top_30_hit': 0.4402966155406262, 'top_50_hit': 0.5193307136519204, 'top_100_hit': 0.6261883635441754, 'acc': 0.15971606969833374, 'mathscore': 0.170110285282135, 'foscttm': 0.015758033841848373}
-{'top_1_hit': 0.07066801876029916, 'top_5_hit': 0.19660286474838382, 'top_10_hit': 0.2753200659145646, 'top_15_hit': 0.3323615160349854, 'top_20_hit': 0.3734947395107111, 'top_30_hit': 0.4346558499176068, 'top_50_hit': 0.5112181518570161, 'top_100_hit': 0.6174420078590442, 'acc': 0.15775129199028015, 'mathscore': 0.16440613567829132, 'foscttm': 0.01468520238995552}
-{'top_1_hit': 0.0853086576245405, 'top_5_hit': 0.2123209532260109, 'top_10_hit': 0.2951578146786665, 'top_15_hit': 0.34598808467486375, 'top_20_hit': 0.3866142730384079, 'top_30_hit': 0.4444796552161237, 'top_50_hit': 0.5207884395994422, 'top_100_hit': 0.6253644314868805, 'acc': 0.1588287502527237, 'mathscore': 0.16795538365840912, 'foscttm': 0.01738793309777975}
-{'top_1_hit': 0.006337938902268982, 'top_5_hit': 0.034731905184434024, 'top_10_hit': 0.06743566992014197, 'top_15_hit': 0.09811129420712385, 'top_20_hit': 0.12732919254658384, 'top_30_hit': 0.17968056787932565, 'top_50_hit': 0.2610597033844594, 'top_100_hit': 0.4101914057548485, 'acc': 0.07364685088396072, 'mathscore': 0.08099886029958725, 'foscttm': 0.017961101606488228}
-{'top_1_hit': 0.08321713778679174, 'top_5_hit': 0.20870832805171757, 'top_10_hit': 0.2884395994422614, 'top_15_hit': 0.34446697933831916, 'top_20_hit': 0.38262137152997844, 'top_30_hit': 0.4358600583090379, 'top_50_hit': 0.5105209785777665, 'top_100_hit': 0.6172518696919762, 'acc': 0.1570541262626648, 'mathscore': 0.1659272462129593, 'foscttm': 0.01888787653297186}
-{'top_1_hit': 0.05830903790087463, 'top_5_hit': 0.17074407402712638, 'top_10_hit': 0.2559893522626442, 'top_15_hit': 0.312016732158702, 'top_20_hit': 0.3588541006464698, 'top_30_hit': 0.42204335150209155, 'top_50_hit': 0.5032957282291799, 'top_100_hit': 0.6149702116871594, 'acc': 0.14887818694114685, 'mathscore': 0.15147674083709717, 'foscttm': 0.013530219439417124}
-{'top_1_hit': 0.052161237165673724, 'top_5_hit': 0.16263151223222208, 'top_10_hit': 0.24673596146533147, 'top_15_hit': 0.30060844213461785, 'top_20_hit': 0.3455444289517049, 'top_30_hit': 0.4109519584231208, 'top_50_hit': 0.4913170237038915, 'top_100_hit': 0.5993788819875776, 'acc': 0.1430472731590271, 'mathscore': 0.14830777049064636, 'foscttm': 0.014518467709422112}
-{'top_1_hit': 0.06192166307516796, 'top_5_hit': 0.18272277855241476, 'top_10_hit': 0.26796805678793256, 'top_15_hit': 0.3261503359107618, 'top_20_hit': 0.3725440486753708, 'top_30_hit': 0.43224743313474456, 'top_50_hit': 0.5134364304728103, 'top_100_hit': 0.6202940803650653, 'acc': 0.15065279603004456, 'mathscore': 0.1548992246389389, 'foscttm': 0.013636811636388302}
-{'top_1_hit': 0.07237926226391178, 'top_5_hit': 0.20135631892508557, 'top_10_hit': 0.28546076815819493, 'top_15_hit': 0.3441500823932057, 'top_20_hit': 0.38762834326277096, 'top_30_hit': 0.4440359994929649, 'top_50_hit': 0.522689821270123, 'top_100_hit': 0.6271390543795158, 'acc': 0.15413866937160492, 'mathscore': 0.16389909386634827, 'foscttm': 0.014955222606658936}
-{'top_1_hit': 0.0741538851565471, 'top_5_hit': 0.20072252503485866, 'top_10_hit': 0.2840030422106731, 'top_15_hit': 0.3388262137152998, 'top_20_hit': 0.3799594371910255, 'top_30_hit': 0.4413106857649892, 'top_50_hit': 0.5166053999239447, 'top_100_hit': 0.6237165673722905, 'acc': 0.15540626645088196, 'mathscore': 0.16389909386634827, 'foscttm': 0.016824934631586075}
-{'top_1_hit': 0.07155533020661681, 'top_5_hit': 0.19989859297756368, 'top_10_hit': 0.2845100773228546, 'top_15_hit': 0.33952338699454937, 'top_20_hit': 0.38135378374952467, 'top_30_hit': 0.44536696666244135, 'top_50_hit': 0.5181265052604893, 'top_100_hit': 0.6228292559259728, 'acc': 0.15996956825256348, 'mathscore': 0.17036379873752594, 'foscttm': 0.015384038910269737}
-✅ TRAINING OVER
-./eval_match.sh: line 23: o: command not found
-    Model dir: /home/rsun@ZHANGroup.local/solid-recover/runs/pair_scratch_case3_20250922_0829/models
-    Output dir: /home/rsun@ZHANGroup.local/solid-recover/eval_result/pair_scratch_case3_20250922_0829
-/home/rsun@ZHANGroup.local/anaconda3/envs/snapatac/lib/python3.10/site-packages/mudata/_core/mudata.py:1531: FutureWarning: From 0.4 .update() will not pull obs/var columns from individual modalities by default anymore. Set mudata.set_options(pull_on_update=False) to adopt the new behaviour, which will become the default. Use new pull_obs/pull_var and push_obs/push_var methods for more flexibility.
-  self._update_attr("var", axis=0, join_common=join_common)
-/home/rsun@ZHANGroup.local/anaconda3/envs/snapatac/lib/python3.10/site-packages/mudata/_core/mudata.py:931: UserWarning: Cannot join columns with the same name because var_names are intersecting.
-  warnings.warn(
-/home/rsun@ZHANGroup.local/anaconda3/envs/snapatac/lib/python3.10/site-packages/mudata/_core/mudata.py:1429: FutureWarning: From 0.4 .update() will not pull obs/var columns from individual modalities by default anymore. Set mudata.set_options(pull_on_update=False) to adopt the new behaviour, which will become the default. Use new pull_obs/pull_var and push_obs/push_var methods for more flexibility.
-  self._update_attr("obs", axis=1, join_common=join_common)
-Loaded config:
-data:
-  batch_size: 512
-  data_path: /home/rsun@ZHANGroup.local/sr_project/eval_data/merge_dataset/mdata.h5mu
-  key_1: rna_count
-  key_2: peak_count
-  test_split_path: /home/rsun@ZHANGroup.local/sr_project/eval_data/data_split/test_id_3.npy
-  train_split_path: /home/rsun@ZHANGroup.local/sr_project/eval_data/data_split/train_id_3.npy
-loss:
-  clip_weight: 40.0
-  cross_recon_1: 0.4
-  cross_recon_2: 0.4
-  temperature: 0.07
-  vae_beta_1: 1.0
-  vae_beta_2: 1.0
-model:
-  clip_temperature: 0.07
-  dropout_p: 0.0
-  embed_dim: 128
-  feature_num_1: null
-  feature_num_2: null
-  hidden_params_1:
-  - 1024
-  - 512
-  - 256
-  hidden_params_2:
-  - 1024
-  - 512
-  - 256
-  use_residual: true
-  use_rmsnorm: true
-optimizer:
-  cosine_anneal_steps: 6000
-  lr: 1e-3
-  min_lr: 1e-4
-  steady_1_steps: 1600
-  warmup_steps: 1000
-training:
-  device: cuda
-  eval_points: 80
-  project_dir: runs/pair_scratch_case3
-  save_points: 500
-  train_steps: 10000
-
-train size: 70997, test size: 7889
-data 1 shape (78886, 32285)
-data 1 shape after qc (78886, 14378)
-data 1 shape (78886, 608869)
-data 1 shape after qc (78886, 141343)
-  0%|          | 0/16 [00:00<?, ?it/s]/home/rsun@ZHANGroup.local/solid-recover/src/sr_model.py:136: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  checkpoint = torch.load(checkpoint_path)
-./eval_match.sh: line 30: 494678 Killed                  python eval_pair_scratch.py --config "$CONFIG_PATH" --eval_dir "$EVAL_DIR" --eval_result_dir "$EVAL_RESULT_DIR"
-✅ Evaluation completed. Results saved to: /home/rsun@ZHANGroup.local/solid-recover/eval_result/pair_scratch_case3_20250922_0829

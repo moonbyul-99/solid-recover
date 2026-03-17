@@ -3,7 +3,8 @@
 
 # CONFIG_PATH='/home/rsun@ZHANGroup.local/solid-recover/configs/case4_align.yaml'
 # CONFIG_PATH='/home/rsun@ZHANGroup.local/solid-recover/configs/case15_align.yaml'
-CONFIG_PATH='/home/rsun@ZHANGroup.local/solid-recover/configs/case15_al.yaml'
+# CONFIG_PATH='/home/rsun@ZHANGroup.local/solid-recover/configs/case15_al.yaml'
+CONFIG_PATH='/home/rsun@ZHANGroup.local/solid-recover/configs/case16_pretrain.yaml'
 
 TO_GPU=False
 # if True, move all data to GPU, this will accelerate training because do not need to move data to GPU every iteration, but will consume more GPU memory 

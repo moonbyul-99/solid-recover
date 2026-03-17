@@ -50,25 +50,24 @@ def pipe(train_data_path, test_data_path, save_dir):
     '''generate rna predictions'''
     res = model.get_normalized_expression(indices = test_rna)
     pred_rna = res.values
-    rna_var = res.columns
+    rna_var =  adata_mvi.var_names[:model.n_genes]
     rna_index = res.index.values 
     for i,ele in enumerate(rna_index):
         ele = ele[4:]
-        ele.replace('_expression','')
-        rna_index[i] = ele 
+        # ele.replace('_expression','')
+        rna_index[i] = ele.replace('_expression','')
     rna_pred = ad.AnnData(pred_rna,)
     rna_pred.var.index = rna_var 
     rna_pred.obs.index = rna_index
 
     '''generate atac predictions'''
-    res = model.get_accessibility_estimates(indices = test_atac)
+    res = model.get_accessibility_estimates(adata_mvi, indices = test_atac, normalize_cells = True)
     pred_atac = res.values
-    atac_var = res.columns
+    atac_var = adata_mvi.var_names[model.n_genes:]
     atac_index = res.index.values 
     for i,ele in enumerate(atac_index):
-        ele = ele[5:]
-        ele.replace('_accessibility','')
-        atac_index[i] = ele 
+        ele = ele[5:]  ## remove the first atac_
+        atac_index[i] = ele.replace('_accessibility','')
     atac_pred = ad.AnnData(pred_atac,)
     atac_pred.var.index = atac_var 
     atac_pred.obs.index = atac_index
@@ -83,7 +82,7 @@ def pipe(train_data_path, test_data_path, save_dir):
 
 
 if __name__ == '__main__':
-    for i in [8,9,11,12]:
+    for i in [8,9,11]:#,12]:
         train_data_path = f'/home/rsun@ZHANGroup.local/solid-recover/data/case_{i}/train_count.h5mu'
         test_data_path = f'/home/rsun@ZHANGroup.local/solid-recover/data/case_{i}/test_count.h5mu'
         save_dir = f'/home/rsun@ZHANGroup.local/solid-recover/compare_method/multivi/case_{i}'

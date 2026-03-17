@@ -62,13 +62,21 @@ def split_data(data_path: str, train_split_path: str, test_split_path: str, save
     mu.write_h5mu(os.path.join(save_dir, 'test.h5mu'),mdata_test)
     print('OVER')
     
-def data_prepare(train_data_path: str, test_data_path: str, key_1: str, key_2: str, to_gpu: bool = False):
+def data_prepare(train_data_path: str, test_data_path: str, key_1: str, key_2: str, to_gpu: bool = False, eval_mode = False):
 
     '''
     prepare the paired data for sr training
     load train and test multi omic data
     construct the train and test pair dataset
     '''
+
+    if eval_mode:
+        test_data = mu.read_h5mu(test_data_path)
+
+        test_data_1 = test_data[key_1]
+        test_data_2 = test_data[key_2]
+        test_dataset = pair_data(Base_sr._adata_format(test_data_1), Base_sr._adata_format(test_data_2))
+        return test_dataset, test_dataset  ## TO DO 
 
     train_data = mu.read_h5mu(train_data_path)
     test_data = mu.read_h5mu(test_data_path)
