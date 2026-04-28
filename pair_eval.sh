@@ -66,7 +66,10 @@
 # OUTPUT_DIR='/home/rsun@ZHANGroup.local/solid-recover/outputs/pair_scratch_case16_al1_20260316_1159'
 # OUTPUT_DIR='/home/rsun@ZHANGroup.local/solid-recover/outputs/pair_scratch_case16_sly_pretrain'
 # OUTPUT_DIR='/home/rsun@ZHANGroup.local/solid-recover/outputs/pair_scratch_case16_al2_large'
-OUTPUT_DIR='/home/rsun@ZHANGroup.local/solid-recover/outputs/pair_scratch_case16_al3_large'
+# OUTPUT_DIR='/home/rsun@ZHANGroup.local/solid-recover/outputs/pair_scratch_case16_al3_large'
+# OUTPUT_DIR='/home/rsun@ZHANGroup.local/solid-recover/outputs/pair_scratch_case16_nowc'
+# OUTPUT_DIR='/home/rsun@ZHANGroup.local/solid-recover/outputs/three_modal_ct_atac_20260416_0305'
+OUTPUT_DIR='/home/rsun@ZHANGroup.local/solid-recover/outputs/pertfate_dual'
 # === 执行 Python 脚本 ===
 echo "▶️  Starting evaluation sr_pair scratch model in output dir: $OUTPUT_DIR"
 

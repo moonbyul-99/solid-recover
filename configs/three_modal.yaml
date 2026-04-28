@@ -1,0 +1,48 @@
+# pair_config.yaml
+
+data:
+  # train_data_path: "/home/rsun@ZHANGroup.local/sr-ai/sc_multi_4/dataset/mdata.h5mu"
+  # test_data_path: "/home/rsun@ZHANGroup.local/sr-ai/sc_multi_4/dataset/mdata.h5mu"
+  train_data_path: "/home/rsun@ZHANGroup.local/sr-ai/sc_multi_4/dataset/mdata_new1.h5mu"
+  test_data_path: "/home/rsun@ZHANGroup.local/sr-ai/sc_multi_4/dataset/mdata_new1.h5mu"
+  key_1: "gene_count"
+  key_2: "atac_count"
+  batch_size: 512
+
+model:
+  feature_num_1: 21161 #50000 #72805
+  feature_num_2: 50000 #133173
+  hidden_params_1: [1024, 256]
+  hidden_params_2: [1024, 256]
+  embed_dim: 64
+  use_rmsnorm: true
+  use_residual: false
+  dropout_p: 0.0
+
+training:
+  project_dir: "outputs/three_modal_rna_atac"
+  train_steps: 4000
+  eval_points: 6000
+  save_points: 1000
+  device: "cuda"
+
+optimizer:
+  lr: 1e-3
+  warmup_steps: 400
+  steady_1_steps: 400
+  cosine_anneal_steps: 4000
+  min_lr: 1e-4
+
+loss:
+  vae_beta_1: 1.0
+  vae_beta_2: 1.0
+  clip_weight: 40.0
+  cross_recon_1: 0.4
+  cross_recon_2: 0.4
+  temperature: 0.15
+  trainable_clip_temperature: False
+  use_weight: True
+  top_k_ratio: 0.1
+  bottom_k_ratio: 0.1        
+  weight_top: 0.1
+  weight_bottom: 5.0
