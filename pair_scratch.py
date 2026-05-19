@@ -54,6 +54,8 @@ def main():
     ## assert that the input feature number matches the feature number in the first sample.
     feature_num_1 = model_cfg['feature_num_1']
     feature_num_2 = model_cfg['feature_num_2']
+    print(feature_num_1, feature_num_2)
+    print(len(train_dataset[0]['omic_1']), len(train_dataset[0]['omic_2']))
     assert feature_num_1 == len(train_dataset[0]['omic_1'])
     assert feature_num_2 == len(train_dataset[0]['omic_2'])
 

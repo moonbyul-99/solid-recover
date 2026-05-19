@@ -19,7 +19,10 @@
 # CONFIG_PATH='/home/rsun@ZHANGroup.local/solid-recover/configs/case8_wc.yaml'
 # CONFIG_PATH='/home/rsun@ZHANGroup.local/solid-recover/configs/case16_al.yaml'
 # CONFIG_PATH='/home/rsun@ZHANGroup.local/solid-recover/configs/three_modal.yaml'
-CONFIG_PATH='/home/rsun@ZHANGroup.local/solid-recover/configs/pertfate.yaml'
+# CONFIG_PATH='/home/rsun@ZHANGroup.local/solid-recover/configs/pertfate.yaml'
+# CONFIG_PATH='/home/rsun@ZHANGroup.local/solid-recover/configs/case_renal.yaml'
+# CONFIG_PATH='/home/rsun@ZHANGroup.local/solid-recover/configs/case_brain.yaml'
+CONFIG_PATH='/home/rsun@ZHANGroup.local/solid-recover/configs/case_mus_kidney.yaml'
 TO_GPU=False
 # if True, move all data to GPU, this will accelerate training because do not need to move data to GPU every iteration, but will consume more GPU memory 
 # without effective training. if False, data 
